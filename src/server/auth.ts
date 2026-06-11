@@ -1,13 +1,14 @@
-"use server";
-
-import { and, eq } from "drizzle-orm";
+import { and, eq, gt, or } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { createHash, randomBytes } from "crypto";
 import { db } from "./db";
 import { sessions, users } from "./db/schema";
-import { setCookie } from "vinxi/http";
+import { getCookie, setCookie } from "vinxi/http";
+import { query, redirect } from "@solidjs/router";
 
 export async function login(username: string, password: string) {
+  "use server";
+
   const [user] = await db
     .select()
     .from(users)
@@ -45,6 +46,8 @@ export async function register(
   email: string,
   password: string,
 ) {
+  "use server";
+
   if (password.length < 8) {
     throw new Error("Password must be at least 8 characters long");
   }
@@ -52,7 +55,7 @@ export async function register(
   const [existing] = await db
     .select()
     .from(users)
-    .where(and(eq(users.username, username), eq(users.email, email)));
+    .where(or(eq(users.username, username), eq(users.email, email)));
 
   if (existing) {
     throw new Error("Username or email already exists");
@@ -81,3 +84,49 @@ export async function register(
     maxAge: 60 * 60 * 24 * 7, // 1 week
   });
 }
+
+export const getUser = query(async () => {
+  "use server";
+
+  const token = getCookie("token");
+
+  if (!token) {
+    return null;
+  }
+
+  const sha256 = createHash("sha256").update(token).digest();
+
+  const [user] = await db
+    .select({
+      id: users.id,
+      username: users.username,
+      email: users.email,
+      balance: users.balance,
+    })
+    .from(sessions)
+    .innerJoin(users, eq(sessions.userId, users.id))
+    .where(
+      and(
+        eq(sessions.token, sha256),
+        gt(sessions.expiresAt, new Date().toISOString()),
+      ),
+    );
+
+  if (!user) {
+    return null;
+  }
+
+  return user;
+}, "user");
+
+export const requireUser = query(async () => {
+  "use server";
+
+  const user = await getUser();
+
+  if (!user) {
+    throw redirect("/login");
+  }
+
+  return user;
+}, "requireUser");
