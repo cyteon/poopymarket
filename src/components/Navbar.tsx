@@ -12,10 +12,22 @@ export default function Navbar() {
         Poopy<span class="text-ctp-blue">market</span>
       </span>
 
+      <div class="mx-auto flex items-center">
+        <a href="/" class="rounded-md text-sm font-medium">
+          Home
+        </a>
+
+        <p class="mx-2 text-ctp-surface2!">\</p>
+
+        <a href="/create" class="rounded-md text-sm font-medium">
+          Create
+        </a>
+      </div>
+
       <Show
         when={!user()}
         fallback={
-          <span class="ml-auto px-2 py-0.5 border rounded-full text-sm font-semibold flex">
+          <span class="px-2 py-0.5 border rounded-full text-sm font-semibold flex">
             <div class="mr-1 my-auto">
               <Credit />
             </div>{" "}
@@ -24,7 +36,7 @@ export default function Navbar() {
           </span>
         }
       >
-        <a href="/login" class="ml-auto text-ctp-blue">
+        <a href="/login" class="text-ctp-blue">
           Login
         </a>
       </Show>
