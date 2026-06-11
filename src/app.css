@@ -1,10 +1,24 @@
 @import "tailwindcss";
 @import "@catppuccin/tailwindcss/mocha.css";
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap");
 
 body {
-    @apply bg-ctp-base;
+    @apply bg-ctp-base text-ctp-text;
 }
 
 * {
-    @apply text-ctp-text;
+    font-family: "Geist", sans-serif;
+    @apply border-ctp-surface1;
+}
+
+button {
+    @apply bg-ctp-blue text-ctp-crust;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+a:hover {
+    text-decoration: underline;
 }

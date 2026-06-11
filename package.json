@@ -12,6 +12,7 @@
     "@solidjs/router": "^0.15.0",
     "@solidjs/start": "1.3.2",
     "@tailwindcss/vite": "^4.3.0",
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "pg": "^8.21.0",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@catppuccin/tailwindcss": "^1.0.0",
+    "@types/bcrypt": "^6.0.0",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "tsx": "^4.22.4"
