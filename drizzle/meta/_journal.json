@@ -29,6 +29,13 @@
       "when": 1781276706513,
       "tag": "0003_lyrical_wolverine",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1781284517006,
+      "tag": "0004_zippy_ricochet",
+      "breakpoints": true
     }
   ]
 }

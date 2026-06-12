@@ -1,6 +1,7 @@
 import {
   boolean,
   customType,
+  doublePrecision,
   integer,
   pgTable,
   serial,
@@ -26,7 +27,7 @@ export const users = pgTable("users", {
 
 export const sessions = pgTable("sessions", {
   id: serial("id").primaryKey(),
-  userId: serial("user_id")
+  userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   token: bytea("token").notNull().unique(),
@@ -45,5 +46,32 @@ export const markets = pgTable("markets", {
   qNo: integer("q_no").notNull().default(0), // no shares
   resolved: boolean("resolved").notNull().default(false),
   resolution: text("resolution", { enum: ["yes", "no"] }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const shares = pgTable("shares", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  marketId: integer("market_id")
+    .notNull()
+    .references(() => markets.id),
+  yesShares: integer("yes_shares").notNull().default(0),
+  noShares: integer("no_shares").notNull().default(0),
+});
+
+export const trades = pgTable("trades", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  marketId: integer("market_id")
+    .notNull()
+    .references(() => markets.id),
+  outcome: text("outcome", { enum: ["yes", "no"] }).notNull(),
+  shares: doublePrecision("shares").notNull(),
+  price: integer("price").notNull(),
+  probAfter: integer("prob_after").notNull(), // makes charting easier, also so we dont have to do lsmr math so much and can just do when trade made
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
