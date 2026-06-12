@@ -36,14 +36,14 @@ export const sessions = pgTable("sessions", {
 export const markets = pgTable("markets", {
   id: serial("id").primaryKey(),
   question: text("question").notNull(),
+  rules: text("rules").notNull(),
   creatorId: integer("creator_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  b: integer("b").notNull().default(1000), // liquidity
+  b: integer("b").notNull().default(250), // liquidity
   qYes: integer("q_yes").notNull().default(0), // yes shares
   qNo: integer("q_no").notNull().default(0), // no shares
   resolved: boolean("resolved").notNull().default(false),
   resolution: text("resolution", { enum: ["yes", "no"] }),
-  closesAt: timestamp("closes_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

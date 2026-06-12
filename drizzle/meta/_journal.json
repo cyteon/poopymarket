@@ -15,6 +15,20 @@
       "when": 1781199090768,
       "tag": "0001_chief_mimic",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781276209064,
+      "tag": "0002_lame_justin_hammer",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1781276706513,
+      "tag": "0003_lyrical_wolverine",
+      "breakpoints": true
     }
   ]
 }

@@ -85,15 +85,8 @@ export async function register(
   });
 }
 
-export const getUser = query(async () => {
+export async function getUserFromToken(token: string) {
   "use server";
-
-  const token = getCookie("token");
-
-  if (!token) {
-    return null;
-  }
-
   const sha256 = createHash("sha256").update(token).digest();
 
   const [user] = await db
@@ -112,11 +105,19 @@ export const getUser = query(async () => {
       ),
     );
 
-  if (!user) {
+  return user || null;
+}
+
+export const getUser = query(async () => {
+  "use server";
+
+  const token = getCookie("token");
+
+  if (!token) {
     return null;
   }
 
-  return user;
+  return await getUserFromToken(token);
 }, "user");
 
 export const requireUser = query(async () => {

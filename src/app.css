@@ -8,6 +8,7 @@ body {
 
 * {
     font-family: "Geist", sans-serif;
+    transition: all 0.2s ease-in-out;
     @apply border-ctp-surface1;
 }
 
@@ -17,6 +18,15 @@ button {
 
 button:hover {
     cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+.ghost {
+    border: 1px solid transparent;
+    @apply bg-transparent text-ctp-text;
 }
 
 a:hover {
