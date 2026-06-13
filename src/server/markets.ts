@@ -33,6 +33,7 @@ export async function createMarket(question: string, rules: string) {
       question,
       rules,
       creatorId: user.id,
+      b: 2000,
     })
     .returning();
 

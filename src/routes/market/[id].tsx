@@ -1,17 +1,19 @@
-import { createAsync, useParams } from "@solidjs/router";
+import { createAsync, revalidate, useParams } from "@solidjs/router";
 import { createResource, createSignal } from "solid-js";
 import Credit from "~/components/Credit";
 import Navbar from "~/components/Navbar";
 import { price } from "~/lib/lmsr";
 import { getUser } from "~/server/auth";
 import { getMarket } from "~/server/markets";
+import { sharesForSpend } from "../../lib/lmsr";
+import { buyShares } from "~/server/shares";
 
 export default function Market() {
   const user = createAsync(() => getUser());
 
   const params = useParams();
 
-  const [market] = createResource(
+  const [market, { refetch: refetchMarket }] = createResource(
     () => params.id,
     async (id) => {
       return await getMarket(parseInt(id));
@@ -26,8 +28,46 @@ export default function Market() {
     return (100.0 - yesChance()).toFixed(0);
   };
 
+  const [error, setError] = createSignal("");
   const [outcome, setOutcome] = createSignal<"YES" | "NO">("YES");
   const [spend, setSpend] = createSignal(0);
+
+  const buyingShares = () => {
+    return sharesForSpend(
+      market()?.b,
+      market()?.qYes,
+      market()?.qNo,
+      outcome(),
+      spend(),
+    );
+  };
+
+  const buyDisabled = () => {
+    return spend() <= 0 || !user() || spend() > user()!.balance;
+  };
+
+  async function handleBuy() {
+    setError("");
+
+    if (buyDisabled()) {
+      setError("Invalid spend amount");
+      return;
+    }
+
+    try {
+      await buyShares({
+        marketId: market()!.id,
+        outcome: outcome(),
+        spend: spend(),
+        minShares: buyingShares(),
+      });
+
+      revalidate();
+      refetchMarket();
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    }
+  }
 
   return (
     <main class="flex flex-col min-h-screen items-center">
@@ -101,7 +141,21 @@ export default function Market() {
                 <input
                   type="number"
                   value={spend()}
-                  onInput={(e) => setSpend(parseFloat(e.currentTarget.value))}
+                  onInput={(e) => {
+                    setSpend(parseFloat(e.currentTarget.value));
+
+                    if (isNaN(spend())) {
+                      setSpend(0);
+                    }
+
+                    if (user() && spend() > user()!.balance) {
+                      setSpend(user()!.balance);
+                    }
+
+                    if (spend() < 0) {
+                      setSpend(0);
+                    }
+                  }}
                   class="w-full bg-transparent outline-none"
                 />
               </div>
@@ -147,7 +201,50 @@ export default function Market() {
                     {spend()}
                   </p>
                 </div>
+
+                <div class="flex">
+                  <p class="text-ctp-subtext0">Shares</p>
+                  <p class="ml-auto">{buyingShares().toFixed(2)}</p>
+                </div>
+
+                <div class="flex">
+                  <p class="text-ctp-subtext0">Avg. price / share</p>
+                  <p class="ml-auto flex">
+                    <span class="my-auto mr-1">
+                      <Credit />
+                    </span>
+
+                    {buyingShares() > 0
+                      ? (spend() / buyingShares()).toFixed(2)
+                      : 0}
+                  </p>
+                </div>
+
+                <hr class="my-2 border-ctp-surface1!" />
+
+                <div class="flex">
+                  <p class="text-ctp-subtext0">Potential payout</p>
+
+                  <p class="ml-auto flex text-ctp-green font-bold">
+                    <span class="my-auto mr-1">
+                      <Credit />
+                    </span>
+
+                    {buyingShares() > 0 ? Math.floor(buyingShares()) : 0}
+                  </p>
+                </div>
               </div>
+
+              {error() && <p class="text-sm text-ctp-red mt-4">{error()}</p>}
+
+              <button
+                class={`mt-4 w-full rounded-lg p-2 flex justify-center border-ctp-surface1! enabled:hover:border-ctp-surface2! ${spend() == 0 ? "ghost" : ""}`}
+                onClick={handleBuy}
+                id="buy-btn"
+                disabled={buyDisabled()}
+              >
+                Buy {outcome()}
+              </button>
             </div>
           </div>
         </div>

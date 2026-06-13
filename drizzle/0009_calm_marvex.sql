@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "positions_user_market_idx" ON "positions" USING btree ("user_id","market_id");

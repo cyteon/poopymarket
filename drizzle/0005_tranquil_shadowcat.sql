@@ -1,0 +1,1 @@
+ALTER TABLE "shares" ADD COLUMN "total_spent" integer DEFAULT 0 NOT NULL;

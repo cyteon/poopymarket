@@ -7,6 +7,7 @@ import {
   serial,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 const citext = customType<{ data: string }>({
@@ -42,24 +43,29 @@ export const markets = pgTable("markets", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   b: integer("b").notNull().default(250), // liquidity
-  qYes: integer("q_yes").notNull().default(0), // yes shares
-  qNo: integer("q_no").notNull().default(0), // no shares
+  qYes: doublePrecision("q_yes").notNull().default(0), // yes shares
+  qNo: doublePrecision("q_no").notNull().default(0), // no shares
   resolved: boolean("resolved").notNull().default(false),
   resolution: text("resolution", { enum: ["yes", "no"] }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const shares = pgTable("shares", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  marketId: integer("market_id")
-    .notNull()
-    .references(() => markets.id),
-  yesShares: integer("yes_shares").notNull().default(0),
-  noShares: integer("no_shares").notNull().default(0),
-});
+export const positions = pgTable(
+  "positions",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    marketId: integer("market_id")
+      .notNull()
+      .references(() => markets.id),
+    yesShares: doublePrecision("yes_shares").notNull().default(0),
+    noShares: doublePrecision("no_shares").notNull().default(0),
+    totalSpent: integer("total_spent").notNull().default(0),
+  },
+  (t) => [uniqueIndex("positions_user_market_idx").on(t.userId, t.marketId)],
+);
 
 export const trades = pgTable("trades", {
   id: serial("id").primaryKey(),
@@ -69,9 +75,9 @@ export const trades = pgTable("trades", {
   marketId: integer("market_id")
     .notNull()
     .references(() => markets.id),
-  outcome: text("outcome", { enum: ["yes", "no"] }).notNull(),
+  outcome: text("outcome", { enum: ["YES", "NO"] }).notNull(),
   shares: doublePrecision("shares").notNull(),
   price: integer("price").notNull(),
-  probAfter: integer("prob_after").notNull(), // makes charting easier, also so we dont have to do lsmr math so much and can just do when trade made
+  probAfter: doublePrecision("prob_after").notNull(), // makes charting easier, also so we dont have to do lsmr math so much and can just do when trade made
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

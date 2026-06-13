@@ -36,6 +36,41 @@
       "when": 1781284517006,
       "tag": "0004_zippy_ricochet",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1781376412715,
+      "tag": "0005_tranquil_shadowcat",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781376435796,
+      "tag": "0006_long_scrambler",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1781377075407,
+      "tag": "0007_free_scarecrow",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1781377817407,
+      "tag": "0008_square_dragon_lord",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1781378170997,
+      "tag": "0009_calm_marvex",
+      "breakpoints": true
     }
   ]
 }
