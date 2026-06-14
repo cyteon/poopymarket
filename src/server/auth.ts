@@ -5,6 +5,7 @@ import { db } from "./db";
 import { ledger, sessions, users } from "./db/schema";
 import { getCookie, setCookie } from "vinxi/http";
 import { query, redirect } from "@solidjs/router";
+import { getRequestEvent } from "solid-js/web";
 
 export async function login(username: string, password: string) {
   "use server";
@@ -118,7 +119,13 @@ export async function getUserFromToken(token: string) {
 export async function getUser() {
   "use server";
 
-  const token = getCookie("token");
+  let token = getCookie("token");
+
+  if (!token) {
+    const req = getRequestEvent()?.request;
+    const cookieHeader = req?.headers.get("cookie") ?? "";
+    token = cookieHeader.match(/(?:^|;\s*)token=([^;]*)/)?.[1];
+  }
 
   if (!token) return null;
 
