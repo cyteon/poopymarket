@@ -160,9 +160,14 @@ export default function Market() {
             </div>
 
             <Show
-              when={!market()?.resolved && user()?.id === market()?.creatorId}
+              when={
+                !market()?.resolved &&
+                (user()?.id === market()?.creatorId || user()?.admin)
+              }
             >
-              <div class="p-4 rounded-md border bg-ctp-surface0">
+              <div
+                class={`p-4 rounded-md bg-ctp-surface0 border ${user()?.id !== market()?.creatorId ? "border-ctp-yellow! border-dashed" : ""}`}
+              >
                 <p class="text-sm font-bold mb-2">
                   Resolve market (creator only)
                 </p>

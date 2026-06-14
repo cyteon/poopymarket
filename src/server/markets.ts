@@ -100,7 +100,7 @@ export async function resolveMarket(id: number, resolution: "YES" | "NO") {
       throw new Error("Market not found");
     }
 
-    if (market.creatorId !== user.id) {
+    if (market.creatorId !== user.id && !user.admin) {
       throw new Error("Only the creator can resolve the market");
     }
 
