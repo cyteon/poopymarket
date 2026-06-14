@@ -2,9 +2,9 @@
 
 import { getCookie } from "vinxi/http";
 import { getUserFromToken } from "./auth";
-import { markets, positions, trades, users } from "./db/schema";
+import { ledger, markets, positions, trades, users } from "./db/schema";
 import { db } from "./db";
-import { asc, eq, sql } from "drizzle-orm";
+import { asc, desc, eq, sql } from "drizzle-orm";
 
 export async function createMarket(question: string, rules: string) {
   if (!question.trim() || !rules.trim()) {
@@ -69,7 +69,11 @@ export async function getMarket(id: number) {
 }
 
 export async function getMarkets() {
-  return await db.select().from(markets).where(eq(markets.resolved, false));
+  return await db
+    .select()
+    .from(markets)
+    .where(eq(markets.resolved, false))
+    .orderBy(desc(markets.volume));
 }
 
 export async function resolveMarket(id: number, resolution: "YES" | "NO") {
@@ -124,6 +128,12 @@ export async function resolveMarket(id: number, resolution: "YES" | "NO") {
         .update(users)
         .set({ balance: sql`${users.balance} + ${payout}` })
         .where(eq(users.id, holder.userId));
+
+      await tx.insert(ledger).values({
+        userId: holder.userId,
+        amount: payout,
+        description: `Payout for market ${market.question}`,
+      });
     }
   });
 }

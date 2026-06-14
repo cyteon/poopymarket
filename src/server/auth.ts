@@ -2,7 +2,7 @@ import { and, eq, gt, or } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { createHash, randomBytes } from "crypto";
 import { db } from "./db";
-import { sessions, users } from "./db/schema";
+import { ledger, sessions, users } from "./db/schema";
 import { getCookie, setCookie } from "vinxi/http";
 import { query, redirect } from "@solidjs/router";
 
@@ -82,6 +82,12 @@ export async function register(
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 60 * 60 * 24 * 30, // 1 month
+  });
+
+  await db.insert(ledger).values({
+    userId: user.id,
+    amount: 1000,
+    description: "Initial balance",
   });
 }
 

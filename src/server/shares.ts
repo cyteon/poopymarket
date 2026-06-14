@@ -3,7 +3,7 @@
 import { getCookie } from "vinxi/http";
 import { getUserFromToken } from "./auth";
 import { db } from "./db";
-import { markets, positions, trades, users } from "./db/schema";
+import { ledger, markets, positions, trades, users } from "./db/schema";
 import { and, eq, sql } from "drizzle-orm";
 import { priceAfterTrade, sharesForSpend } from "~/lib/lmsr";
 
@@ -125,6 +125,12 @@ export async function buyShares({
       shares,
       probAfter,
       price: spend,
+    });
+
+    await tx.insert(ledger).values({
+      userId: user.id,
+      amount: -spend,
+      description: `Bought ${shares.toFixed(2)} ${outcome} on market #${marketId}`,
     });
   });
 }

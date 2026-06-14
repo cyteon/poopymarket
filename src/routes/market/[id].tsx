@@ -86,6 +86,7 @@ export default function Market() {
 
       revalidate();
       refetchMarket();
+      refetchShares();
     } catch (err: any) {
       setError(err instanceof Error ? err.message : "An error occurred");
     }
@@ -99,6 +100,7 @@ export default function Market() {
 
       revalidate();
       refetchMarket();
+      refetchShares();
     } catch (err: any) {
       setError(err instanceof Error ? err.message : "An error occurred");
     }
@@ -426,21 +428,23 @@ export default function Market() {
                 </button>
               </div>
 
-              <div class="p-4 rounded-md border bg-ctp-surface0 mt-4">
-                <p class="text-sm font-bold mb-2">Your shares</p>
+              <Show when={user() && shares()}>
+                <div class="p-4 rounded-md border bg-ctp-surface0 mt-4">
+                  <p class="text-sm font-bold mb-2">Your shares</p>
 
-                <div class="mt-4 bg-ctp-mantle p-3 px-4 rounded-lg border text-sm">
-                  <div class="flex">
-                    <p class="text-ctp-subtext0">YES shares</p>
-                    <p class="ml-auto">{shares()?.yesShares.toFixed(2)}</p>
-                  </div>
+                  <div class="mt-4 bg-ctp-mantle p-3 px-4 rounded-lg border text-sm">
+                    <div class="flex">
+                      <p class="text-ctp-subtext0">YES shares</p>
+                      <p class="ml-auto">{shares()?.yesShares.toFixed(2)}</p>
+                    </div>
 
-                  <div class="flex">
-                    <p class="text-ctp-subtext0">NO shares</p>
-                    <p class="ml-auto">{shares()?.noShares.toFixed(2)}</p>
+                    <div class="flex">
+                      <p class="text-ctp-subtext0">NO shares</p>
+                      <p class="ml-auto">{shares()?.noShares.toFixed(2)}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Show>
             </div>
           </Show>
         </div>
