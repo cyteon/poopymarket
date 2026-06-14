@@ -7,6 +7,8 @@ import { getUser } from "~/server/auth";
 import { getMarket } from "~/server/markets";
 import { sharesForSpend } from "../../lib/lmsr";
 import { buyShares } from "~/server/shares";
+import { format } from "~/lib/utils";
+import { Chart } from "~/components/Chart";
 
 export default function Market() {
   const user = createAsync(() => getUser());
@@ -106,6 +108,20 @@ export default function Market() {
                   class="bg-ctp-red"
                 ></span>
               </div>
+
+              <div class="mt-1 flex text-sm">
+                <div class="my-auto mr-1">
+                  <Credit />
+                </div>
+
+                <p>{format(market()?.volume)} vol.</p>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-md border bg-ctp-surface0">
+              <p class="text-sm font-bold mb-2">Chance over time</p>
+
+              <Chart data={market()?.points!} />
             </div>
 
             <div class="p-4 rounded-md border bg-ctp-surface0">

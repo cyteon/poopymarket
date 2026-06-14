@@ -2,9 +2,9 @@
 
 import { getCookie } from "vinxi/http";
 import { getUserFromToken } from "./auth";
-import { markets, users } from "./db/schema";
+import { markets, trades, users } from "./db/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 
 export async function createMarket(question: string, rules: string) {
   if (!question.trim() || !rules.trim()) {
@@ -52,7 +52,25 @@ export async function getMarket(id: number) {
     .where(eq(markets.id, id))
     .execute();
 
-  return market;
+  const chanceData = await db
+    .select({ probAfter: trades.probAfter, createdAt: trades.createdAt })
+    .from(trades)
+    .where(eq(trades.marketId, id))
+    .orderBy(asc(trades.createdAt))
+    .execute();
+
+  const byTime = new Map<number, number>();
+
+  for (const c of chanceData) {
+    byTime.set(Math.floor(c.createdAt.getTime() / 1000), c.probAfter);
+  }
+
+  const points = [...byTime.entries()].map(([time, value]) => ({
+    time,
+    value,
+  }));
+
+  return { ...market, points };
 }
 
 export async function getMarkets() {
