@@ -21,6 +21,7 @@ export default function Market() {
     async (id) => {
       return await getMarket(parseInt(id));
     },
+    { deferStream: true },
   );
 
   const [shares, { refetch: refetchShares }] = createResource(
