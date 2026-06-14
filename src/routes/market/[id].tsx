@@ -1,12 +1,12 @@
 import { createAsync, revalidate, useParams } from "@solidjs/router";
-import { createResource, createSignal } from "solid-js";
+import { createResource, createSignal, Show } from "solid-js";
 import Credit from "~/components/Credit";
 import Navbar from "~/components/Navbar";
 import { price } from "~/lib/lmsr";
 import { getUser } from "~/server/auth";
-import { getMarket } from "~/server/markets";
+import { getMarket, resolveMarket } from "~/server/markets";
 import { sharesForSpend } from "../../lib/lmsr";
-import { buyShares } from "~/server/shares";
+import { buyShares, getUserShares } from "~/server/shares";
 import { format } from "~/lib/utils";
 import { Chart } from "~/components/Chart";
 
@@ -21,6 +21,24 @@ export default function Market() {
       return await getMarket(parseInt(id));
     },
   );
+
+  const [shares, { refetch: refetchShares }] = createResource(
+    () => market()?.id,
+    async (id) => {
+      return await getUserShares(id);
+    },
+  );
+
+  const netPayout = () => {
+    if (!shares()) return 0;
+
+    const yesPayout =
+      shares()!.yesShares * (market()?.resolution === "YES" ? 1 : 0);
+    const noPayout =
+      shares()!.noShares * (market()?.resolution === "NO" ? 1 : 0);
+
+    return yesPayout + noPayout - shares()!.totalSpent;
+  };
 
   const yesChance = () => {
     return (price(market()?.b, market()?.qYes, market()?.qNo) * 100).toFixed(0);
@@ -63,6 +81,19 @@ export default function Market() {
         spend: spend(),
         minShares: buyingShares(),
       });
+
+      revalidate();
+      refetchMarket();
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    }
+  }
+
+  async function handleResolve(resolution: "YES" | "NO") {
+    setError("");
+
+    try {
+      await resolveMarket(market()!.id, resolution);
 
       revalidate();
       refetchMarket();
@@ -118,6 +149,52 @@ export default function Market() {
               </div>
             </div>
 
+            <Show
+              when={!market()?.resolved && user()?.id === market()?.creatorId}
+            >
+              <div class="p-4 rounded-md border bg-ctp-surface0">
+                <p class="text-sm font-bold mb-2">
+                  Resolve market (creator only)
+                </p>
+                <p class="text-sm text-ctp-red">
+                  Warning: resolving will close the market and pay out all
+                  positions, this cannot be undone
+                </p>
+
+                <div class="flex mt-2">
+                  <button
+                    class={`ghost border-ctp-surface1! hover:border-ctp-surface2! w-full rounded-lg p-2 ${market()?.resolution === "YES" ? "bg-ctp-green! text-ctp-crust! border-0!" : ""}`}
+                    onClick={() => {
+                      const confirm = window.confirm(
+                        "Are you sure you want to resolve this market as YES? This action cannot be undone.",
+                      );
+
+                      if (confirm) {
+                        handleResolve("YES");
+                      }
+                    }}
+                  >
+                    Resolve YES
+                  </button>
+
+                  <button
+                    class={`ghost border-ctp-surface1! hover:border-ctp-surface2! w-full rounded-lg p-2 ml-2 ${market()?.resolution === "NO" ? "bg-ctp-red! text-ctp-crust! border-0!" : ""}`}
+                    onClick={() => {
+                      const confirm = window.confirm(
+                        "Are you sure you want to resolve this market as NO? This action cannot be undone.",
+                      );
+
+                      if (confirm) {
+                        handleResolve("NO");
+                      }
+                    }}
+                  >
+                    Resolve NO
+                  </button>
+                </div>
+              </div>
+            </Show>
+
             <div class="p-4 rounded-md border bg-ctp-surface0">
               <p class="text-sm font-bold mb-2">Chance over time</p>
 
@@ -130,139 +207,218 @@ export default function Market() {
             </div>
           </div>
 
-          <div class="flex flex-col w-1/3">
-            <div class="p-4 rounded-md border bg-ctp-surface0">
-              <div class="flex gap-2 text-sm">
-                <button
-                  class={`ghost border-ctp-surface1! hover:border-ctp-surface2! w-full rounded-lg p-2 ${outcome() === "YES" ? "bg-ctp-green! text-ctp-crust! border-0!" : ""}`}
-                  onClick={() => setOutcome("YES")}
-                >
-                  Yes <span class="font-bold">{yesChance()}%</span>
-                </button>
+          <Show
+            when={!market()?.resolved}
+            fallback={
+              <div class="flex flex-col w-1/3 gap-4">
+                <div class="p-4 rounded-md border bg-ctp-surface0">
+                  <p class="text-sm font-bold mb-2">Market resolved</p>
+
+                  <h1
+                    class={`text-3xl font-bold ${market()?.resolution === "YES" ? "text-ctp-green" : "text-ctp-red"}`}
+                  >
+                    {market()?.resolution}
+                  </h1>
+                </div>
+
+                <Show when={user() && shares()}>
+                  <div class="p-4 rounded-md border bg-ctp-surface0">
+                    <p class="text-sm font-bold mb-2">Your shares</p>
+
+                    <div class="mt-4 bg-ctp-mantle p-3 px-4 rounded-lg border text-sm">
+                      <div class="flex">
+                        <p class="text-ctp-subtext0">YES shares</p>
+                        <p class="ml-auto">{shares()?.yesShares.toFixed(2)}</p>
+                      </div>
+
+                      <div class="flex">
+                        <p class="text-ctp-subtext0">Paid out</p>
+                        <p class="ml-auto flex">
+                          <span class="my-auto mr-1">
+                            <Credit />
+                          </span>
+
+                          {market()?.resolution === "YES"
+                            ? Math.floor(shares()?.yesShares || 0)
+                            : 0}
+                        </p>
+                      </div>
+
+                      <hr class="my-2 border-ctp-surface1!" />
+
+                      <div class="flex">
+                        <p class="text-ctp-subtext0">NO shares</p>
+                        <p class="ml-auto">{shares()?.noShares.toFixed(2)}</p>
+                      </div>
+
+                      <div class="flex">
+                        <p class="text-ctp-subtext0">Paid out</p>
+                        <p class="ml-auto flex">
+                          <span class="my-auto mr-1">
+                            <Credit />
+                          </span>
+
+                          {market()?.resolution === "NO"
+                            ? Math.floor(shares()?.noShares || 0)
+                            : 0}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="p-4 rounded-md border bg-ctp-surface0">
+                    <p class="text-sm font-bold mb-2">Net profit/loss</p>
+
+                    <p
+                      class={`text-2xl font-bold flex ${shares() && netPayout() >= 0 ? "text-ctp-green" : "text-ctp-red"}`}
+                    >
+                      <span class="my-auto mr-2">
+                        <Credit />
+                      </span>
+
+                      {shares() ? (netPayout() >= 0 ? "+" : "") : ""}
+
+                      {shares() ? netPayout().toFixed(2) : 0}
+                    </p>
+                  </div>
+                </Show>
+              </div>
+            }
+          >
+            <div class="flex flex-col w-1/3">
+              <div class="p-4 rounded-md border bg-ctp-surface0">
+                <div class="flex gap-2 text-sm">
+                  <button
+                    class={`ghost border-ctp-surface1! hover:border-ctp-surface2! w-full rounded-lg p-2 ${outcome() === "YES" ? "bg-ctp-green! text-ctp-crust! border-0!" : ""}`}
+                    onClick={() => setOutcome("YES")}
+                  >
+                    Yes <span class="font-bold">{yesChance()}%</span>
+                  </button>
+
+                  <button
+                    class={`ghost border-ctp-surface1! hover:border-ctp-surface2! w-full rounded-lg p-2 ${outcome() === "NO" ? "bg-ctp-red! text-ctp-crust! border-0!" : ""}`}
+                    onClick={() => setOutcome("NO")}
+                  >
+                    No <span class="font-bold">{noChance()}%</span>
+                  </button>
+                </div>
+
+                <p class="text-xs text-ctp-subtext0! mt-4">Amount to spend</p>
+                <div class="flex bg-ctp-mantle rounded-lg p-3 text-sm mt-1">
+                  <div class="my-auto ml-1 mr-3 scale-">
+                    <Credit />
+                  </div>
+
+                  <input
+                    type="number"
+                    value={spend()}
+                    onInput={(e) => {
+                      setSpend(parseFloat(e.currentTarget.value));
+
+                      if (isNaN(spend())) {
+                        setSpend(0);
+                      }
+
+                      if (user() && spend() > user()!.balance) {
+                        setSpend(user()!.balance);
+                      }
+
+                      if (spend() < 0) {
+                        setSpend(0);
+                      }
+                    }}
+                    class="w-full bg-transparent outline-none"
+                  />
+                </div>
+                <div class="flex gap-1 mt-1">
+                  <button
+                    class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
+                    onClick={() => setSpend(user()!.balance * 0.25)}
+                  >
+                    25%
+                  </button>
+
+                  <button
+                    class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
+                    onClick={() => setSpend(user()!.balance * 0.5)}
+                  >
+                    50%
+                  </button>
+
+                  <button
+                    class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
+                    onClick={() => setSpend(user()!.balance * 0.75)}
+                  >
+                    75%
+                  </button>
+
+                  <button
+                    class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
+                    onClick={() => setSpend(user()!.balance)}
+                  >
+                    MAX
+                  </button>
+                </div>
+
+                <div class="mt-4 bg-ctp-mantle p-3 px-4 rounded-lg border text-sm">
+                  <div class="flex">
+                    <p class="text-ctp-subtext0">Cost</p>
+
+                    <p class="ml-auto flex">
+                      <span class="my-auto mr-1">
+                        <Credit />
+                      </span>
+
+                      {spend()}
+                    </p>
+                  </div>
+
+                  <div class="flex">
+                    <p class="text-ctp-subtext0">Shares</p>
+                    <p class="ml-auto">{buyingShares().toFixed(2)}</p>
+                  </div>
+
+                  <div class="flex">
+                    <p class="text-ctp-subtext0">Avg. price / share</p>
+                    <p class="ml-auto flex">
+                      <span class="my-auto mr-1">
+                        <Credit />
+                      </span>
+
+                      {buyingShares() > 0
+                        ? (spend() / buyingShares()).toFixed(2)
+                        : 0}
+                    </p>
+                  </div>
+
+                  <hr class="my-2 border-ctp-surface1!" />
+
+                  <div class="flex">
+                    <p class="text-ctp-subtext0">Potential payout</p>
+
+                    <p class="ml-auto flex text-ctp-green font-bold">
+                      <span class="my-auto mr-1">
+                        <Credit />
+                      </span>
+
+                      {buyingShares() > 0 ? Math.floor(buyingShares()) : 0}
+                    </p>
+                  </div>
+                </div>
+
+                {error() && <p class="text-sm text-ctp-red mt-4">{error()}</p>}
 
                 <button
-                  class={`ghost border-ctp-surface1! hover:border-ctp-surface2! w-full rounded-lg p-2 ${outcome() === "NO" ? "bg-ctp-red! text-ctp-crust! border-0!" : ""}`}
-                  onClick={() => setOutcome("NO")}
+                  class={`mt-4 w-full rounded-lg p-2 flex justify-center border-ctp-surface1! enabled:hover:border-ctp-surface2! ${spend() == 0 ? "ghost" : ""}`}
+                  onClick={handleBuy}
+                  id="buy-btn"
+                  disabled={buyDisabled()}
                 >
-                  No <span class="font-bold">{noChance()}%</span>
+                  Buy {outcome()}
                 </button>
               </div>
-
-              <p class="text-xs text-ctp-subtext0! mt-4">Amount to spend</p>
-              <div class="flex bg-ctp-mantle rounded-lg p-3 text-sm mt-1">
-                <div class="my-auto ml-1 mr-3 scale-">
-                  <Credit />
-                </div>
-
-                <input
-                  type="number"
-                  value={spend()}
-                  onInput={(e) => {
-                    setSpend(parseFloat(e.currentTarget.value));
-
-                    if (isNaN(spend())) {
-                      setSpend(0);
-                    }
-
-                    if (user() && spend() > user()!.balance) {
-                      setSpend(user()!.balance);
-                    }
-
-                    if (spend() < 0) {
-                      setSpend(0);
-                    }
-                  }}
-                  class="w-full bg-transparent outline-none"
-                />
-              </div>
-              <div class="flex gap-1 mt-1">
-                <button
-                  class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
-                  onClick={() => setSpend(user()!.balance * 0.25)}
-                >
-                  25%
-                </button>
-
-                <button
-                  class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
-                  onClick={() => setSpend(user()!.balance * 0.5)}
-                >
-                  50%
-                </button>
-
-                <button
-                  class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
-                  onClick={() => setSpend(user()!.balance * 0.75)}
-                >
-                  75%
-                </button>
-
-                <button
-                  class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
-                  onClick={() => setSpend(user()!.balance)}
-                >
-                  MAX
-                </button>
-              </div>
-
-              <div class="mt-4 bg-ctp-mantle p-2 px-4 rounded-lg border text-sm">
-                <div class="flex">
-                  <p class="text-ctp-subtext0">Cost</p>
-
-                  <p class="ml-auto flex">
-                    <span class="my-auto mr-1">
-                      <Credit />
-                    </span>
-
-                    {spend()}
-                  </p>
-                </div>
-
-                <div class="flex">
-                  <p class="text-ctp-subtext0">Shares</p>
-                  <p class="ml-auto">{buyingShares().toFixed(2)}</p>
-                </div>
-
-                <div class="flex">
-                  <p class="text-ctp-subtext0">Avg. price / share</p>
-                  <p class="ml-auto flex">
-                    <span class="my-auto mr-1">
-                      <Credit />
-                    </span>
-
-                    {buyingShares() > 0
-                      ? (spend() / buyingShares()).toFixed(2)
-                      : 0}
-                  </p>
-                </div>
-
-                <hr class="my-2 border-ctp-surface1!" />
-
-                <div class="flex">
-                  <p class="text-ctp-subtext0">Potential payout</p>
-
-                  <p class="ml-auto flex text-ctp-green font-bold">
-                    <span class="my-auto mr-1">
-                      <Credit />
-                    </span>
-
-                    {buyingShares() > 0 ? Math.floor(buyingShares()) : 0}
-                  </p>
-                </div>
-              </div>
-
-              {error() && <p class="text-sm text-ctp-red mt-4">{error()}</p>}
-
-              <button
-                class={`mt-4 w-full rounded-lg p-2 flex justify-center border-ctp-surface1! enabled:hover:border-ctp-surface2! ${spend() == 0 ? "ghost" : ""}`}
-                onClick={handleBuy}
-                id="buy-btn"
-                disabled={buyDisabled()}
-              >
-                Buy {outcome()}
-              </button>
             </div>
-          </div>
+          </Show>
         </div>
       </div>
     </main>

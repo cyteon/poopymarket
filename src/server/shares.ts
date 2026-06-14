@@ -4,7 +4,7 @@ import { getCookie } from "vinxi/http";
 import { getUserFromToken } from "./auth";
 import { db } from "./db";
 import { markets, positions, trades, users } from "./db/schema";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { priceAfterTrade, sharesForSpend } from "~/lib/lmsr";
 
 export async function buyShares({
@@ -128,4 +128,30 @@ export async function buyShares({
       price: spend,
     });
   });
+}
+
+export async function getUserShares(marketId: number) {
+  const token = getCookie("token");
+
+  if (!token) {
+    return { yesShares: 0, noShares: 0 };
+  }
+
+  const user = await getUserFromToken(token);
+
+  if (!user) {
+    return { yesShares: 0, noShares: 0 };
+  }
+
+  const [position] = await db
+    .select()
+    .from(positions)
+    .where(and(eq(positions.marketId, marketId), eq(positions.userId, user.id)))
+    .execute();
+
+  return {
+    yesShares: position?.yesShares || 0,
+    noShares: position?.noShares || 0,
+    totalSpent: position?.totalSpent || 0,
+  };
 }

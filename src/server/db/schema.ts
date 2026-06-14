@@ -47,7 +47,7 @@ export const markets = pgTable("markets", {
   qNo: doublePrecision("q_no").notNull().default(0), // no shares
   volume: integer("volume").notNull().default(0),
   resolved: boolean("resolved").notNull().default(false),
-  resolution: text("resolution", { enum: ["yes", "no"] }),
+  resolution: text("resolution", { enum: ["YES", "NO"] }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
