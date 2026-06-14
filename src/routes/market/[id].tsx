@@ -108,7 +108,7 @@ export default function Market() {
     <main class="flex flex-col min-h-screen items-center">
       <Meta
         property="og:title"
-        content={`${market()?.question} ($${yesChance()}%)`}
+        content={`${market()?.question} (${yesChance()}%)`}
       />
       <Meta property="og:description" content={market()?.rules} />
 
@@ -341,28 +341,28 @@ export default function Market() {
                 <div class="flex gap-1 mt-1">
                   <button
                     class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
-                    onClick={() => setSpend(user()!.balance * 0.25)}
+                    onClick={() => setSpend((user()?.balance || 0) * 0.25)}
                   >
                     25%
                   </button>
 
                   <button
                     class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
-                    onClick={() => setSpend(user()!.balance * 0.5)}
+                    onClick={() => setSpend((user()?.balance || 0) * 0.5)}
                   >
                     50%
                   </button>
 
                   <button
                     class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
-                    onClick={() => setSpend(user()!.balance * 0.75)}
+                    onClick={() => setSpend((user()?.balance || 0) * 0.75)}
                   >
                     75%
                   </button>
 
                   <button
                     class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
-                    onClick={() => setSpend(user()!.balance)}
+                    onClick={() => setSpend(user()?.balance || 0)}
                   >
                     MAX
                   </button>
@@ -417,13 +417,29 @@ export default function Market() {
                 {error() && <p class="text-sm text-ctp-red mt-4">{error()}</p>}
 
                 <button
-                  class={`mt-4 w-full rounded-lg p-2 flex justify-center border-ctp-surface1! enabled:hover:border-ctp-surface2! ${spend() == 0 ? "ghost" : ""}`}
+                  class={`mt-4 w-full rounded-lg p-2 flex justify-center border-ctp-surface1! enabled:hover:border-ctp-surface2! ${spend() == 0 || !user() ? "ghost" : ""}`}
                   onClick={handleBuy}
                   id="buy-btn"
                   disabled={buyDisabled()}
                 >
                   Buy {outcome()}
                 </button>
+              </div>
+
+              <div class="p-4 rounded-md border bg-ctp-surface0 mt-4">
+                <p class="text-sm font-bold mb-2">Your shares</p>
+
+                <div class="mt-4 bg-ctp-mantle p-3 px-4 rounded-lg border text-sm">
+                  <div class="flex">
+                    <p class="text-ctp-subtext0">YES shares</p>
+                    <p class="ml-auto">{shares()?.yesShares.toFixed(2)}</p>
+                  </div>
+
+                  <div class="flex">
+                    <p class="text-ctp-subtext0">NO shares</p>
+                    <p class="ml-auto">{shares()?.noShares.toFixed(2)}</p>
+                  </div>
+                </div>
               </div>
             </div>
           </Show>
