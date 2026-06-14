@@ -83,6 +83,16 @@ export const trades = pgTable("trades", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const ledger = pgTable("ledger", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  amount: integer("amount").notNull(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export type User = typeof users.$inferSelect;
 export type Market = typeof markets.$inferSelect;
 export type Position = typeof positions.$inferSelect;

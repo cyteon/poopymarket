@@ -81,7 +81,7 @@ export async function register(
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 60 * 60 * 24 * 7, // 1 week
+    maxAge: 60 * 60 * 24 * 30, // 1 month
   });
 }
 
@@ -108,17 +108,15 @@ export async function getUserFromToken(token: string) {
   return user || null;
 }
 
-export const getUser = query(async () => {
+export async function getUser() {
   "use server";
 
   const token = getCookie("token");
 
-  if (!token) {
-    return null;
-  }
+  if (!token) return null;
 
-  return await getUserFromToken(token);
-}, "user");
+  return getUserFromToken(token);
+}
 
 export const requireUser = query(async () => {
   "use server";
