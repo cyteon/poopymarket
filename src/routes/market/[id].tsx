@@ -189,9 +189,19 @@ export default function Market() {
               <div
                 class={`p-4 rounded-md bg-ctp-surface0 border ${user()?.id !== market()?.creatorId ? "border-ctp-yellow! border-dashed" : ""}`}
               >
-                <p class="text-sm font-bold mb-2">
-                  Resolve market (creator only)
-                </p>
+                <Show
+                  when={user()?.id !== market()?.creatorId}
+                  fallback={
+                    <p class="text-sm font-bold mb-2">
+                      Resolve market (creator only)
+                    </p>
+                  }
+                >
+                  <p class="text-sm font-bold mb-2">
+                    Resolve market (<s>creator only</s> admin :D)
+                  </p>
+                </Show>
+
                 <p class="text-sm text-ctp-red">
                   Warning: resolving will close the market and pay out all
                   positions, this cannot be undone
@@ -440,7 +450,7 @@ export default function Market() {
 
             <Show when={market()?.topPositions?.length! > 0}>
               <div class="p-4 rounded-md border bg-ctp-surface0">
-                <p class="text-sm font-bold mb-2">Top holders</p>
+                <p class="text-sm font-bold mb-2">Top 5 holders</p>
 
                 <table class="w-full text-left">
                   <thead>
