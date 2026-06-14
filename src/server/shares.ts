@@ -5,7 +5,12 @@ import { getUserFromToken } from "./auth";
 import { db } from "./db";
 import { ledger, markets, positions, trades, users } from "./db/schema";
 import { and, eq, sql } from "drizzle-orm";
-import { priceAfterTrade, sharesForSpend } from "~/lib/lmsr";
+import {
+  floorPoints,
+  priceAfterTrade,
+  sellProceeds,
+  sharesForSpend,
+} from "~/lib/lmsr";
 
 export async function buyShares({
   marketId,
@@ -160,4 +165,112 @@ export async function getUserShares(marketId: number) {
     noShares: position?.noShares || 0,
     totalSpent: position?.totalSpent || 0,
   };
+}
+
+export async function sellShares({
+  marketId,
+  outcome,
+}: {
+  marketId: number;
+  outcome: "YES" | "NO";
+}) {
+  const token = getCookie("token");
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await getUserFromToken(token);
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  await db.transaction(async (tx) => {
+    const [market] = await tx
+      .select()
+      .from(markets)
+      .where(eq(markets.id, marketId))
+      .for("update");
+
+    if (!market) {
+      throw new Error("Market not found");
+    }
+
+    if (market.resolved) {
+      throw new Error("Market already resolved");
+    }
+
+    const [position] = await tx
+      .select()
+      .from(positions)
+      .where(
+        and(eq(positions.marketId, marketId), eq(positions.userId, user.id)),
+      )
+      .for("update");
+
+    if (!position) {
+      throw new Error("No shares to sell");
+    }
+
+    const userShares =
+      outcome === "YES" ? position.yesShares : position.noShares;
+
+    if (userShares == 0) {
+      throw new Error("No shares to sell");
+    }
+
+    const newYes = outcome === "YES" ? market.qYes - userShares : market.qYes;
+    const newNo = outcome === "NO" ? market.qNo - userShares : market.qNo;
+
+    const proceeds = floorPoints(
+      sellProceeds(market.b, market.qYes, market.qNo, outcome, userShares),
+    );
+
+    await tx
+      .update(users)
+      .set({ balance: sql`${users.balance} + ${proceeds}` })
+      .where(eq(users.id, user.id));
+
+    await tx
+      .update(markets)
+      .set({
+        qYes: newYes,
+        qNo: newNo,
+        volume: sql`${markets.volume} + ${proceeds}`,
+      })
+      .where(eq(markets.id, marketId));
+
+    await tx
+      .update(positions)
+      .set({
+        yesShares: outcome === "YES" ? 0 : position.yesShares,
+        noShares: outcome === "NO" ? 0 : position.noShares,
+        totalSpent: sql`greatest(${positions.totalSpent} - ${position.totalSpent}, 0)`,
+      })
+      .where(
+        and(eq(positions.marketId, marketId), eq(positions.userId, user.id)),
+      );
+
+    await tx.insert(trades).values({
+      userId: user.id,
+      marketId,
+      outcome,
+      shares: -userShares,
+      probAfter: priceAfterTrade(
+        market.b,
+        market.qYes,
+        market.qNo,
+        outcome,
+        -userShares,
+      ),
+      price: proceeds,
+    });
+
+    await tx.insert(ledger).values({
+      userId: user.id,
+      amount: proceeds,
+      description: `Sold ${userShares.toFixed(2)} ${outcome} on market #${marketId}`,
+    });
+  });
 }

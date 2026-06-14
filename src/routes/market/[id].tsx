@@ -6,7 +6,7 @@ import { price } from "~/lib/lmsr";
 import { getUser } from "~/server/auth";
 import { getMarket, resolveMarket } from "~/server/markets";
 import { sharesForSpend } from "../../lib/lmsr";
-import { buyShares, getUserShares } from "~/server/shares";
+import { buyShares, getUserShares, sellShares } from "~/server/shares";
 import { format } from "~/lib/utils";
 import { Chart } from "~/components/Chart";
 import { Meta } from "@solidjs/meta";
@@ -97,6 +97,23 @@ export default function Market() {
 
     try {
       await resolveMarket(market()!.id, resolution);
+
+      revalidate();
+      refetchMarket();
+      refetchShares();
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    }
+  }
+
+  async function handleSell(outcome: "YES" | "NO") {
+    setError("");
+
+    try {
+      await sellShares({
+        marketId: market()!.id,
+        outcome,
+      });
 
       revalidate();
       refetchMarket();
@@ -245,7 +262,6 @@ export default function Market() {
                         <p class="text-ctp-subtext0">YES shares</p>
                         <p class="ml-auto">{shares()?.yesShares.toFixed(2)}</p>
                       </div>
-
                       <div class="flex">
                         <p class="text-ctp-subtext0">Paid out</p>
                         <p class="ml-auto flex">
@@ -258,14 +274,11 @@ export default function Market() {
                             : 0}
                         </p>
                       </div>
-
                       <hr class="my-2 border-ctp-surface1!" />
-
                       <div class="flex">
                         <p class="text-ctp-subtext0">NO shares</p>
                         <p class="ml-auto">{shares()?.noShares.toFixed(2)}</p>
                       </div>
-
                       <div class="flex">
                         <p class="text-ctp-subtext0">Paid out</p>
                         <p class="ml-auto flex">
@@ -447,6 +460,40 @@ export default function Market() {
                       <p class="text-ctp-subtext0">NO shares</p>
                       <p class="ml-auto">{shares()?.noShares.toFixed(2)}</p>
                     </div>
+                  </div>
+
+                  <div class="flex mt-4 gap-2 text-sm">
+                    <button
+                      class="w-full rounded-lg p-2 bg-ctp-green! text-ctp-crust!"
+                      onClick={() => {
+                        const confirm = window.confirm(
+                          `This will sell ${shares()?.yesShares.toFixed(2)} YES shares. Are you sure?`,
+                        );
+
+                        if (confirm) {
+                          handleSell("YES");
+                        }
+                      }}
+                      disabled={shares()?.yesShares === 0}
+                    >
+                      Sell YES
+                    </button>
+
+                    <button
+                      class="w-full rounded-lg p-2 bg-ctp-red! text-ctp-crust!"
+                      onClick={() => {
+                        const confirm = window.confirm(
+                          `This will sell ${shares()?.noShares.toFixed(2)} NO shares. Are you sure?`,
+                        );
+
+                        if (confirm) {
+                          handleSell("NO");
+                        }
+                      }}
+                      disabled={shares()?.noShares === 0}
+                    >
+                      Sell NO
+                    </button>
                   </div>
                 </div>
               </Show>

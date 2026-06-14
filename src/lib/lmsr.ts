@@ -40,3 +40,30 @@ export function priceAfterTrade(
 
   return price(b, newYes, newNo);
 }
+
+export function costToTrade(
+  b: number,
+  qYes: number,
+  qNo: number,
+  outcome: Outcome,
+  shares: number,
+): number {
+  const newYes = outcome === "YES" ? qYes + shares : qYes;
+  const newNo = outcome === "NO" ? qNo + shares : qNo;
+
+  return cost(b, newYes, newNo) - cost(b, qYes, qNo);
+}
+
+export function sellProceeds(
+  b: number,
+  qYes: number,
+  qNo: number,
+  outcome: Outcome,
+  shares: number,
+): number {
+  return -costToTrade(b, qYes, qNo, outcome, -shares);
+}
+
+export function floorPoints(x: number): number {
+  return Math.floor(x + 1e-9);
+}
