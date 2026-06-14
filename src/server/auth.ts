@@ -112,7 +112,6 @@ export async function getUser() {
   "use server";
 
   const token = getCookie("token");
-  console.log("Token from cookie:", token);
 
   if (!token) return null;
 
