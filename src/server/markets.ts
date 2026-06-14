@@ -65,7 +65,20 @@ export async function getMarket(id: number) {
     value,
   }));
 
-  return { ...market, points };
+  const topPositions = await db
+    .select({
+      username: users.username,
+      yesShares: positions.yesShares,
+      noShares: positions.noShares,
+      spent: sql`${positions.yesSpent} + ${positions.noSpent}`,
+    })
+    .from(positions)
+    .innerJoin(users, eq(positions.userId, users.id))
+    .where(eq(positions.marketId, id))
+    .orderBy(desc(sql`(${positions.yesShares} + ${positions.noShares})`))
+    .limit(5);
+
+  return { ...market, points, topPositions };
 }
 
 export async function getMarkets() {

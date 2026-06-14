@@ -438,6 +438,79 @@ export default function Market() {
               </div>
             </Show>
 
+            <Show when={market()?.topPositions?.length! > 0}>
+              <div class="p-4 rounded-md border bg-ctp-surface0">
+                <p class="text-sm font-bold mb-2">Top holders</p>
+
+                <table class="w-full text-left">
+                  <thead>
+                    <tr class="text-ctp-subtext0 text-sm">
+                      <th>User</th>
+                      <th class="text-right">Spent</th>
+                      <th class="text-right">YES shares</th>
+                      <th class="text-right">NO shares</th>
+                      <th class="text-right">P/L</th>
+                    </tr>
+                  </thead>
+
+                  <tbody class="text-sm [&_td]:py-0.5">
+                    {market()?.topPositions?.map((pos) => {
+                      const m = market()!;
+                      const valueFor = (side: "YES" | "NO", n: number) => {
+                        if (n <= 0) return 0;
+                        if (m.resolved) {
+                          const won =
+                            (side === "YES" && m.resolution === "yes") ||
+                            (side === "NO" && m.resolution === "no");
+                          return won ? Math.floor(n) : 0;
+                        }
+                        return floorPoints(
+                          sellProceeds(m.b, m.qYes, m.qNo, side, n),
+                        );
+                      };
+                      const value =
+                        valueFor("YES", pos.yesShares) +
+                        valueFor("NO", pos.noShares);
+                      const pl = value - pos.spent;
+
+                      return (
+                        <tr>
+                          <td>
+                            <p>{pos.username}</p>
+                          </td>
+
+                          <td class="text-right">
+                            <span class="inline-flex items-center justify-end gap-1">
+                              <Credit />
+                              {pos.spent}
+                            </span>
+                          </td>
+
+                          <td class="text-right">{pos.yesShares.toFixed(2)}</td>
+
+                          <td class="text-right">{pos.noShares.toFixed(2)}</td>
+
+                          <td class="text-right">
+                            <span
+                              class="inline-flex items-center justify-end gap-1"
+                              classList={{
+                                "text-ctp-green": pl > 0,
+                                "text-ctp-red": pl < 0,
+                              }}
+                            >
+                              <Credit />
+                              {pl >= 0 ? "+" : ""}
+                              {pl}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </Show>
+
             <div class="p-4 rounded-md border bg-ctp-surface0">
               <p class="text-sm font-bold mb-2">Market Rules</p>
               <h1 class="mt-2">{market()?.rules}</h1>
