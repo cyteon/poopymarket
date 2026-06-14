@@ -343,6 +343,7 @@ export default function Market() {
 
                   <input
                     type="number"
+                    onkeydown="if(event.key==='.' || event.key===',') event.preventDefault();"
                     value={spend()}
                     onInput={(e) => {
                       setSpend(parseFloat(e.currentTarget.value));
@@ -365,21 +366,27 @@ export default function Market() {
                 <div class="flex gap-1 mt-1">
                   <button
                     class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
-                    onClick={() => setSpend((user()?.balance || 0) * 0.25)}
+                    onClick={() =>
+                      setSpend(Math.floor((user()?.balance || 0) * 0.25))
+                    }
                   >
                     25%
                   </button>
 
                   <button
                     class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
-                    onClick={() => setSpend((user()?.balance || 0) * 0.5)}
+                    onClick={() =>
+                      setSpend(Math.floor((user()?.balance || 0) * 0.5))
+                    }
                   >
                     50%
                   </button>
 
                   <button
                     class="text-xs ghost border-ctp-surface1! w-full rounded-lg p-2 enabled:hover:border-ctp-surface2!"
-                    onClick={() => setSpend((user()?.balance || 0) * 0.75)}
+                    onClick={() =>
+                      setSpend(Math.floor((user()?.balance || 0) * 0.75))
+                    }
                   >
                     75%
                   </button>
