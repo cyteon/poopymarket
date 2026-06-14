@@ -51,8 +51,7 @@ export async function buyShares({
       .select()
       .from(markets)
       .where(eq(markets.id, marketId))
-      .for("update")
-      .execute();
+      .for("update");
 
     if (!market) {
       throw new Error("Market not found");
@@ -146,8 +145,9 @@ export async function getUserShares(marketId: number) {
   const [position] = await db
     .select()
     .from(positions)
-    .where(and(eq(positions.marketId, marketId), eq(positions.userId, user.id)))
-    .execute();
+    .where(
+      and(eq(positions.marketId, marketId), eq(positions.userId, user.id)),
+    );
 
   return {
     yesShares: position?.yesShares || 0,

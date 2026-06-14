@@ -9,6 +9,7 @@ import { sharesForSpend } from "../../lib/lmsr";
 import { buyShares, getUserShares } from "~/server/shares";
 import { format } from "~/lib/utils";
 import { Chart } from "~/components/Chart";
+import { Meta } from "@solidjs/meta";
 
 export default function Market() {
   const user = createAsync(() => getUser());
@@ -104,6 +105,12 @@ export default function Market() {
 
   return (
     <main class="flex flex-col min-h-screen items-center">
+      <Meta
+        property="og:title"
+        content={`${market()?.question} ($${yesChance()}%)`}
+      />
+      <Meta property="og:description" content={market()?.rules} />
+
       <Navbar />
 
       <div class="max-w-4xl w-full mt-8">

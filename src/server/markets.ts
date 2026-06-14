@@ -46,18 +46,13 @@ export async function createMarket(question: string, rules: string) {
 }
 
 export async function getMarket(id: number) {
-  const [market] = await db
-    .select()
-    .from(markets)
-    .where(eq(markets.id, id))
-    .execute();
+  const [market] = await db.select().from(markets).where(eq(markets.id, id));
 
   const chanceData = await db
     .select({ probAfter: trades.probAfter, createdAt: trades.createdAt })
     .from(trades)
     .where(eq(trades.marketId, id))
-    .orderBy(asc(trades.createdAt))
-    .execute();
+    .orderBy(asc(trades.createdAt));
 
   const byTime = new Map<number, number>();
 
@@ -74,7 +69,7 @@ export async function getMarket(id: number) {
 }
 
 export async function getMarkets() {
-  return await db.select().from(markets).execute();
+  return await db.select().from(markets).where(eq(markets.resolved, false));
 }
 
 export async function resolveMarket(id: number, resolution: "YES" | "NO") {
@@ -95,8 +90,7 @@ export async function resolveMarket(id: number, resolution: "YES" | "NO") {
       .select()
       .from(markets)
       .where(eq(markets.id, id))
-      .for("update")
-      .execute();
+      .for("update");
 
     if (!market) {
       throw new Error("Market not found");
@@ -113,14 +107,12 @@ export async function resolveMarket(id: number, resolution: "YES" | "NO") {
     await tx
       .update(markets)
       .set({ resolved: true, resolution })
-      .where(eq(markets.id, id))
-      .execute();
+      .where(eq(markets.id, id));
 
     const holders = await tx
       .select()
       .from(positions)
-      .where(eq(positions.marketId, id))
-      .execute();
+      .where(eq(positions.marketId, id));
 
     for (const holder of holders) {
       const winningShares =
