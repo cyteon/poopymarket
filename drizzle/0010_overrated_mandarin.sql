@@ -1,0 +1,1 @@
+ALTER TABLE "markets" ADD COLUMN "volume" integer DEFAULT 0 NOT NULL;

@@ -45,6 +45,7 @@ export const markets = pgTable("markets", {
   b: integer("b").notNull().default(250), // liquidity
   qYes: doublePrecision("q_yes").notNull().default(0), // yes shares
   qNo: doublePrecision("q_no").notNull().default(0), // no shares
+  volume: integer("volume").notNull().default(0),
   resolved: boolean("resolved").notNull().default(false),
   resolution: text("resolution", { enum: ["yes", "no"] }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -81,3 +82,8 @@ export const trades = pgTable("trades", {
   probAfter: doublePrecision("prob_after").notNull(), // makes charting easier, also so we dont have to do lsmr math so much and can just do when trade made
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export type User = typeof users.$inferSelect;
+export type Market = typeof markets.$inferSelect;
+export type Position = typeof positions.$inferSelect;
+export type Trade = typeof trades.$inferSelect;

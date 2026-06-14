@@ -46,46 +46,47 @@ export async function buyShares({
     throw new Error("Insufficient balance");
   }
 
-  const [market] = await db
-    .select()
-    .from(markets)
-    .where(eq(markets.id, marketId))
-    .execute();
-
-  if (!market) {
-    throw new Error("Market not found");
-  }
-
-  if (market.resolved) {
-    throw new Error("Market already resolved");
-  }
-
-  const shares = sharesForSpend(
-    market.b,
-    market.qYes,
-    market.qNo,
-    outcome,
-    spend,
-  );
-
-  if (shares < Math.floor(minShares * 0.99)) {
-    throw new Error(">1% slippage, refresh and try again");
-  }
-
-  const newYes = outcome === "YES" ? market.qYes + shares : market.qYes;
-  const newNo = outcome === "NO" ? market.qNo + shares : market.qNo;
-  const probAfter = priceAfterTrade(
-    market.b,
-    market.qYes,
-    market.qNo,
-    outcome,
-    shares,
-  );
-
-  const yesAdd = outcome === "YES" ? shares : 0;
-  const noAdd = outcome === "NO" ? shares : 0;
-
   await db.transaction(async (tx) => {
+    const [market] = await tx
+      .select()
+      .from(markets)
+      .where(eq(markets.id, marketId))
+      .for("update")
+      .execute();
+
+    if (!market) {
+      throw new Error("Market not found");
+    }
+
+    if (market.resolved) {
+      throw new Error("Market already resolved");
+    }
+
+    const shares = sharesForSpend(
+      market.b,
+      market.qYes,
+      market.qNo,
+      outcome,
+      spend,
+    );
+
+    if (shares < Math.floor(minShares * 0.99)) {
+      throw new Error(">1% slippage, refresh and try again");
+    }
+
+    const newYes = outcome === "YES" ? market.qYes + shares : market.qYes;
+    const newNo = outcome === "NO" ? market.qNo + shares : market.qNo;
+    const probAfter = priceAfterTrade(
+      market.b,
+      market.qYes,
+      market.qNo,
+      outcome,
+      shares,
+    );
+
+    const yesAdd = outcome === "YES" ? shares : 0;
+    const noAdd = outcome === "NO" ? shares : 0;
+
     await tx
       .update(users)
       .set({ balance: sql`${users.balance} - ${spend}` })
@@ -93,7 +94,11 @@ export async function buyShares({
 
     await tx
       .update(markets)
-      .set({ qYes: newYes, qNo: newNo })
+      .set({
+        qYes: newYes,
+        qNo: newNo,
+        volume: sql`${markets.volume} + ${spend}`,
+      })
       .where(eq(markets.id, marketId));
 
     await tx

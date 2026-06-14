@@ -54,3 +54,7 @@ export async function getMarket(id: number) {
 
   return market;
 }
+
+export async function getMarkets() {
+  return await db.select().from(markets).execute();
+}
