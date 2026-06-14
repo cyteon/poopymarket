@@ -64,7 +64,8 @@ export const positions = pgTable(
       .references(() => markets.id),
     yesShares: doublePrecision("yes_shares").notNull().default(0),
     noShares: doublePrecision("no_shares").notNull().default(0),
-    totalSpent: integer("total_spent").notNull().default(0),
+    yesSpent: integer("yes_spent").notNull().default(0),
+    noSpent: integer("no_spent").notNull().default(0),
   },
   (t) => [uniqueIndex("positions_user_market_idx").on(t.userId, t.marketId)],
 );

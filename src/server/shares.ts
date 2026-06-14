@@ -112,14 +112,16 @@ export async function buyShares({
         marketId,
         yesShares: yesAdd,
         noShares: noAdd,
-        totalSpent: spend,
+        yesSpent: outcome === "YES" ? spend : 0,
+        noSpent: outcome === "NO" ? spend : 0,
       })
       .onConflictDoUpdate({
         target: [positions.userId, positions.marketId],
         set: {
           yesShares: sql`${positions.yesShares} + ${yesAdd}`,
           noShares: sql`${positions.noShares} + ${noAdd}`,
-          totalSpent: sql`${positions.totalSpent} + ${spend}`,
+          yesSpent: sql`${positions.yesSpent} + ${outcome === "YES" ? spend : 0}`,
+          noSpent: sql`${positions.noSpent} + ${outcome === "NO" ? spend : 0}`,
         },
       });
 
@@ -163,7 +165,8 @@ export async function getUserShares(marketId: number) {
   return {
     yesShares: position?.yesShares || 0,
     noShares: position?.noShares || 0,
-    totalSpent: position?.totalSpent || 0,
+    yesSpent: position?.yesSpent || 0,
+    noSpent: position?.noSpent || 0,
   };
 }
 
@@ -246,7 +249,8 @@ export async function sellShares({
       .set({
         yesShares: outcome === "YES" ? 0 : position.yesShares,
         noShares: outcome === "NO" ? 0 : position.noShares,
-        totalSpent: sql`greatest(${positions.totalSpent} - ${position.totalSpent}, 0)`,
+        yesSpent: sql`greatest(${positions.yesShares} - ${outcome === "YES" ? userShares : 0}, 0)`,
+        noSpent: sql`greatest(${positions.noShares} - ${outcome === "NO" ? userShares : 0}, 0)`,
       })
       .where(
         and(eq(positions.marketId, marketId), eq(positions.userId, user.id)),

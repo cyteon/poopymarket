@@ -2,7 +2,7 @@ import { createAsync, revalidate, useParams } from "@solidjs/router";
 import { createResource, createSignal, Show } from "solid-js";
 import Credit from "~/components/Credit";
 import Navbar from "~/components/Navbar";
-import { price } from "~/lib/lmsr";
+import { floorPoints, price, sellProceeds } from "~/lib/lmsr";
 import { getUser } from "~/server/auth";
 import { getMarket, resolveMarket } from "~/server/markets";
 import { sharesForSpend } from "../../lib/lmsr";
@@ -43,7 +43,7 @@ export default function Market() {
     const noPayout =
       shares()!.noShares * (market()?.resolution === "NO" ? 1 : 0);
 
-    return yesPayout + noPayout - shares()!.totalSpent;
+    return yesPayout + noPayout - shares()?.yesSpent - shares()?.noSpent;
   };
 
   const yesChance = () => {
@@ -236,6 +236,207 @@ export default function Market() {
 
               <Chart data={market()?.points!} />
             </div>
+
+            <Show
+              when={
+                user() &&
+                shares() &&
+                (shares()!.yesShares > 0 || shares()!.noShares > 0)
+              }
+            >
+              <div class="p-4 rounded-md border bg-ctp-surface0">
+                <p class="text-sm font-bold mb-2">Your positions</p>
+
+                <table class="w-full text-left">
+                  <thead>
+                    <tr class="text-ctp-subtext0 text-sm">
+                      <th>Outcome</th>
+                      <th class="text-right">Shares</th>
+                      <th class="text-right">Avg. price</th>
+                      <th class="text-right">Value</th>
+                      <th class="text-right">P/L</th>
+                      <th class="text-right w-16"></th>
+                    </tr>
+                  </thead>
+
+                  <tbody class="text-sm [&_td]:py-0.5">
+                    <Show when={shares()!.yesShares > 0}>
+                      {(() => {
+                        const m = market()!;
+                        const resolved = m.resolved;
+                        const won = resolved && m.resolution === "YES";
+
+                        const value = resolved
+                          ? won
+                            ? Math.floor(shares()!.yesShares)
+                            : 0
+                          : floorPoints(
+                              sellProceeds(
+                                m.b,
+                                m.qYes,
+                                m.qNo,
+                                "YES",
+                                shares()!.yesShares,
+                              ),
+                            );
+
+                        const pl = value - shares()!.yesSpent;
+
+                        return (
+                          <tr>
+                            <td>YES</td>
+
+                            <td class="text-right">
+                              {shares()!.yesShares.toFixed(2)}
+                            </td>
+
+                            <td class="text-right">
+                              <span class="inline-flex items-center justify-end gap-1">
+                                <Credit />
+                                {(
+                                  shares()!.yesSpent / shares()!.yesShares
+                                ).toFixed(2)}
+                              </span>
+                            </td>
+
+                            <td class="text-right">
+                              <span class="inline-flex items-center justify-end gap-1">
+                                <Credit />
+                                {value}
+                              </span>
+                            </td>
+
+                            <td class="text-right">
+                              <span
+                                class="inline-flex items-center justify-end gap-1"
+                                classList={{
+                                  "text-ctp-green": pl > 0,
+                                  "text-ctp-red": pl < 0,
+                                }}
+                              >
+                                <Credit />
+                                {pl >= 0 ? "+" : ""}
+                                {pl}
+                              </span>
+                            </td>
+
+                            <Show when={!market()?.resolved}>
+                              <td class="text-right">
+                                <button
+                                  class="text-xs ghost border-ctp-surface1! w-fit rounded-lg py-1 px-2 enabled:hover:border-ctp-surface2!"
+                                  onClick={() => {
+                                    const confirm = window.confirm(
+                                      `This will sell ${shares()?.yesShares.toFixed(2)} YES shares. Are you sure?`,
+                                    );
+
+                                    if (confirm) {
+                                      handleSell("YES");
+                                    }
+                                  }}
+                                  disabled={
+                                    shares()!.yesShares === 0 ||
+                                    market()?.resolved
+                                  }
+                                >
+                                  Sell
+                                </button>
+                              </td>
+                            </Show>
+                          </tr>
+                        );
+                      })()}
+                    </Show>
+
+                    <Show when={shares()!.noShares > 0}>
+                      {(() => {
+                        const m = market()!;
+                        const resolved = m.resolved;
+                        const won = resolved && m.resolution === "NO";
+
+                        const value = resolved
+                          ? won
+                            ? Math.floor(shares()!.noShares)
+                            : 0
+                          : floorPoints(
+                              sellProceeds(
+                                m.b,
+                                m.qYes,
+                                m.qNo,
+                                "NO",
+                                shares()!.noShares,
+                              ),
+                            );
+
+                        const pl = value - shares()!.noSpent;
+
+                        return (
+                          <tr>
+                            <td>NO</td>
+
+                            <td class="text-right">
+                              {shares()!.noShares.toFixed(2)}
+                            </td>
+
+                            <td class="text-right">
+                              <span class="inline-flex items-center justify-end gap-1">
+                                <Credit />
+                                {(
+                                  shares()!.noSpent / shares()!.noShares
+                                ).toFixed(2)}
+                              </span>
+                            </td>
+
+                            <td class="text-right">
+                              <span class="inline-flex items-center justify-end gap-1">
+                                <Credit />
+                                {value}
+                              </span>
+                            </td>
+
+                            <td class="text-right">
+                              <span
+                                class="inline-flex items-center justify-end gap-1"
+                                classList={{
+                                  "text-ctp-green": pl > 0,
+                                  "text-ctp-red": pl < 0,
+                                }}
+                              >
+                                <Credit />
+                                {pl >= 0 ? "+" : ""}
+                                {pl}
+                              </span>
+                            </td>
+
+                            <Show when={!market()?.resolved}>
+                              <td class="text-right">
+                                <button
+                                  class="text-xs ghost border-ctp-surface1! w-fit rounded-lg py-1 px-2 enabled:hover:border-ctp-surface2!"
+                                  onClick={() => {
+                                    const confirm = window.confirm(
+                                      `This will sell ${shares()?.noShares.toFixed(2)} NO shares. Are you sure?`,
+                                    );
+
+                                    if (confirm) {
+                                      handleSell("NO");
+                                    }
+                                  }}
+                                  disabled={
+                                    shares()!.noShares === 0 ||
+                                    market()?.resolved
+                                  }
+                                >
+                                  Sell
+                                </button>
+                              </td>
+                            </Show>
+                          </tr>
+                        );
+                      })()}
+                    </Show>
+                  </tbody>
+                </table>
+              </div>
+            </Show>
 
             <div class="p-4 rounded-md border bg-ctp-surface0">
               <p class="text-sm font-bold mb-2">Market Rules</p>
@@ -456,58 +657,6 @@ export default function Market() {
                   Buy {outcome()}
                 </button>
               </div>
-
-              <Show when={user() && shares()}>
-                <div class="p-4 rounded-md border bg-ctp-surface0 mt-4">
-                  <p class="text-sm font-bold mb-2">Your shares</p>
-
-                  <div class="mt-4 bg-ctp-mantle p-3 px-4 rounded-lg border text-sm">
-                    <div class="flex">
-                      <p class="text-ctp-subtext0">YES shares</p>
-                      <p class="ml-auto">{shares()?.yesShares.toFixed(2)}</p>
-                    </div>
-
-                    <div class="flex">
-                      <p class="text-ctp-subtext0">NO shares</p>
-                      <p class="ml-auto">{shares()?.noShares.toFixed(2)}</p>
-                    </div>
-                  </div>
-
-                  <div class="flex mt-4 gap-2 text-sm">
-                    <button
-                      class="w-full rounded-lg p-2 bg-ctp-green! text-ctp-crust!"
-                      onClick={() => {
-                        const confirm = window.confirm(
-                          `This will sell ${shares()?.yesShares.toFixed(2)} YES shares. Are you sure?`,
-                        );
-
-                        if (confirm) {
-                          handleSell("YES");
-                        }
-                      }}
-                      disabled={shares()?.yesShares === 0}
-                    >
-                      Sell YES
-                    </button>
-
-                    <button
-                      class="w-full rounded-lg p-2 bg-ctp-red! text-ctp-crust!"
-                      onClick={() => {
-                        const confirm = window.confirm(
-                          `This will sell ${shares()?.noShares.toFixed(2)} NO shares. Are you sure?`,
-                        );
-
-                        if (confirm) {
-                          handleSell("NO");
-                        }
-                      }}
-                      disabled={shares()?.noShares === 0}
-                    >
-                      Sell NO
-                    </button>
-                  </div>
-                </div>
-              </Show>
             </div>
           </Show>
         </div>

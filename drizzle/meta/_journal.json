@@ -92,6 +92,13 @@
       "when": 1781447508737,
       "tag": "0012_windy_cobalt_man",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1781453353057,
+      "tag": "0013_freezing_thaddeus_ross",
+      "breakpoints": true
     }
   ]
 }
