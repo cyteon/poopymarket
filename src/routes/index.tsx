@@ -2,7 +2,15 @@ import { createAsync } from "@solidjs/router";
 import { For } from "solid-js";
 import Marketcard from "~/components/Marketcard";
 import Navbar from "~/components/Navbar";
+import { getUser } from "~/server/auth";
 import { getMarkets } from "~/server/markets";
+
+export const route = {
+  preload: () => {
+    getUser();
+    getMarkets();
+  },
+};
 
 export default function Home() {
   const markets = createAsync(getMarkets);

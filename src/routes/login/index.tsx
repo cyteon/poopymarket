@@ -1,6 +1,6 @@
-import { useNavigate } from "@solidjs/router";
+import { revalidate, useNavigate } from "@solidjs/router";
 import { createSignal } from "solid-js";
-import { login } from "~/server/auth";
+import { getUser, login } from "~/server/auth";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -19,6 +19,7 @@ export default function Login() {
 
     try {
       await login(username(), password());
+      await revalidate(getUser.key);
       navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");

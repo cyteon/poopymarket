@@ -5,6 +5,10 @@ import Navbar from "~/components/Navbar";
 import { requireUser } from "~/server/auth";
 import { createMarket } from "~/server/markets";
 
+export const route = {
+  preload: () => requireUser(),
+};
+
 export default function Create() {
   const navigate = useNavigate();
   const user = createAsync(() => requireUser());

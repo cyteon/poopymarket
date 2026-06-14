@@ -1,6 +1,6 @@
-import { useNavigate } from "@solidjs/router";
+import { revalidate, useNavigate } from "@solidjs/router";
 import { createSignal } from "solid-js";
-import { register } from "~/server/auth";
+import { getUser, register } from "~/server/auth";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -20,6 +20,7 @@ export default function Register() {
 
     try {
       await register(username(), email(), password());
+      await revalidate(getUser.key);
       navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");

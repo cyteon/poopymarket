@@ -11,6 +11,10 @@ import { format } from "~/lib/utils";
 import { Chart } from "~/components/Chart";
 import { Meta } from "@solidjs/meta";
 
+export const route = {
+  preload: () => getUser(),
+};
+
 export default function Market() {
   const user = createAsync(() => getUser());
 

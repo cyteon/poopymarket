@@ -116,7 +116,7 @@ export async function getUserFromToken(token: string) {
   return user || null;
 }
 
-export async function getUser() {
+export const getUser = query(async () => {
   "use server";
 
   let token = getCookie("token");
@@ -130,9 +130,9 @@ export async function getUser() {
   if (!token) return null;
 
   return getUserFromToken(token);
-}
+}, "user");
 
-export async function requireUser() {
+export const requireUser = query(async () => {
   "use server";
 
   const user = await getUser();
@@ -142,4 +142,4 @@ export async function requireUser() {
   }
 
   return user;
-}
+}, "requireUser");
