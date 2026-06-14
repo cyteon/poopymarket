@@ -24,6 +24,7 @@ export const users = pgTable("users", {
   username: citext("username").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   balance: integer("balance").notNull().default(1000),
+  admin: boolean("admin").notNull().default(false),
 });
 
 export const sessions = pgTable("sessions", {

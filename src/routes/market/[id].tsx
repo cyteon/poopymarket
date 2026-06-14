@@ -116,13 +116,13 @@ export default function Market() {
 
       <Navbar />
 
-      <div class="max-w-4xl w-full mt-8">
+      <div class="max-w-4xl w-full mt-8 px-2">
         <a href="/" class="text-xs text-ctp-subtext0 mb-2 inline-block">
           &larr; All Markets
         </a>
 
-        <div class="flex gap-4">
-          <div class="flex flex-col w-2/3 gap-4">
+        <div class="flex gap-4 flex-col lg:flex-row">
+          <div class="flex flex-col lg:w-2/3 gap-4">
             <div class="p-4 rounded-md border bg-ctp-surface0">
               <h1 class="text-xl font-bold">{market()?.question}</h1>
 
@@ -220,7 +220,7 @@ export default function Market() {
           <Show
             when={!market()?.resolved}
             fallback={
-              <div class="flex flex-col w-1/3 gap-4">
+              <div class="flex flex-col lg:w-1/3 gap-4">
                 <div class="p-4 rounded-md border bg-ctp-surface0">
                   <p class="text-sm font-bold mb-2">Market resolved</p>
 
