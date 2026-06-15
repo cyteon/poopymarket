@@ -209,7 +209,7 @@ export default function Market() {
 
                 <div class="flex mt-2">
                   <button
-                    class={`ghost border-ctp-surface1! hover:border-ctp-surface2! w-full rounded-lg p-2 ${market()?.resolution === "YES" ? "bg-ctp-green! text-ctp-crust! border-0!" : ""}`}
+                    class={`ghost border-ctp-surface1! enabled:hover:border-ctp-surface2! w-full rounded-lg p-2 ${market()?.resolution === "YES" ? "bg-ctp-green! text-ctp-crust! border-0!" : ""}`}
                     onClick={() => {
                       const confirm = window.confirm(
                         "Are you sure you want to resolve this market as YES? This action cannot be undone.",
@@ -219,12 +219,15 @@ export default function Market() {
                         handleResolve("YES");
                       }
                     }}
+                    disabled={
+                      market()?.preventCreatorResolution && !user()?.admin
+                    }
                   >
                     Resolve YES
                   </button>
 
                   <button
-                    class={`ghost border-ctp-surface1! hover:border-ctp-surface2! w-full rounded-lg p-2 ml-2 ${market()?.resolution === "NO" ? "bg-ctp-red! text-ctp-crust! border-0!" : ""}`}
+                    class={`ghost border-ctp-surface1! enabled:hover:border-ctp-surface2! w-full rounded-lg p-2 ml-2 ${market()?.resolution === "NO" ? "bg-ctp-red! text-ctp-crust! border-0!" : ""}`}
                     onClick={() => {
                       const confirm = window.confirm(
                         "Are you sure you want to resolve this market as NO? This action cannot be undone.",
@@ -234,6 +237,9 @@ export default function Market() {
                         handleResolve("NO");
                       }
                     }}
+                    disabled={
+                      market()?.preventCreatorResolution && !user()?.admin
+                    }
                   >
                     Resolve NO
                   </button>

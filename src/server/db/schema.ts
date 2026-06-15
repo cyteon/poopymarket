@@ -52,6 +52,9 @@ export const markets = pgTable("markets", {
   volume: integer("volume").notNull().default(0),
   resolved: boolean("resolved").notNull().default(false),
   resolution: text("resolution", { enum: ["YES", "NO"] }),
+  preventCreatorResolution: boolean("prevent_creator_resolution")
+    .notNull()
+    .default(false), // admin option for locking market resolution to admin-only
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

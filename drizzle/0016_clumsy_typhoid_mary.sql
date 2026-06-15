@@ -1,0 +1,1 @@
+ALTER TABLE "markets" ADD COLUMN "prevent_creator_resolution" boolean DEFAULT false NOT NULL;

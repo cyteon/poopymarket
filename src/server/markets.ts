@@ -125,6 +125,10 @@ export async function resolveMarket(id: number, resolution: "YES" | "NO") {
       throw new Error("Only the creator can resolve the market");
     }
 
+    if (!user.admin && market.preventCreatorResolution) {
+      throw new Error("Market resolution has been locked to admins only");
+    }
+
     if (market.resolved) {
       throw new Error("Market already resolved");
     }

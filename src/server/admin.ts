@@ -58,7 +58,7 @@ export async function getUsers() {
       banned: users.banned,
     })
     .from(users)
-    .orderBy(users.id);
+    .orderBy(users.banned, users.id);
 
   return usersData;
 }
@@ -114,4 +114,30 @@ export async function toggleBanned(userId: number) {
     .update(users)
     .set({ banned: !targetUser.banned })
     .where(eq(users.id, userId));
+}
+
+export async function getMarkets() {
+  const token = getCookie("token");
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await getUserFromToken(token);
+
+  if (!user || !user.admin) {
+    throw new Error("Unauthorized");
+  }
+
+  const marketsData = await db
+    .select({
+      id: markets.id,
+      question: markets.question,
+      resolved: markets.resolved,
+      resolution: markets.resolution,
+    })
+    .from(markets)
+    .orderBy(markets.resolved, markets.id);
+
+  return marketsData;
 }
