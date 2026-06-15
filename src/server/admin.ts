@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, sql, sum } from "drizzle-orm";
+import { desc, eq, sql, sum } from "drizzle-orm";
 import { db } from "./db";
 import { ledger, markets, trades, users } from "./db/schema";
 import { getCookie } from "vinxi/http";
@@ -132,12 +132,50 @@ export async function getMarkets() {
   const marketsData = await db
     .select({
       id: markets.id,
+      creator: users.username,
       question: markets.question,
       resolved: markets.resolved,
       resolution: markets.resolution,
+      volume: markets.volume,
     })
     .from(markets)
+    .leftJoin(users, eq(users.id, markets.creatorId))
     .orderBy(markets.resolved, markets.id);
 
   return marketsData;
+}
+
+// this will be large so pagination needed
+export async function getTrades(page: number) {
+  const token = getCookie("token");
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await getUserFromToken(token);
+
+  if (!user || !user.admin) {
+    throw new Error("Unauthorized");
+  }
+
+  const tradesData = await db
+    .select({
+      id: trades.id,
+      market: trades.marketId,
+      user: users.username,
+      outcome: trades.outcome,
+      price: trades.price,
+      shares: trades.shares,
+      createdAt: trades.createdAt,
+    })
+    .from(trades)
+    .leftJoin(users, eq(users.id, trades.userId))
+    .orderBy(desc(trades.id))
+    .limit(100)
+    .offset((page - 1) * 100);
+
+  const pageCount = Math.ceil((await db.$count(trades)) / 100);
+
+  return { d: tradesData, pageCount };
 }

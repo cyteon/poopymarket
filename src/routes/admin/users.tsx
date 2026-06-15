@@ -2,6 +2,7 @@ import { createAsync, revalidate } from "@solidjs/router";
 import { DollarSign, Hammer } from "lucide-solid";
 import { For } from "solid-js";
 import Credit from "~/components/Credit";
+import { format } from "~/lib/utils";
 import { adjustBalance, getUsers, toggleBanned } from "~/server/admin";
 
 export default function Users() {
@@ -61,7 +62,7 @@ export default function Users() {
 
                   <td class="p-2 px-3 inline-flex items-center justify-end gap-1">
                     <Credit />
-                    {user.balance}
+                    {format(user.balance)}
                   </td>
 
                   <td class="p-2 px-3 text-right">

@@ -282,7 +282,7 @@ export async function sellShares({
         outcome,
         -userShares,
       ),
-      price: proceeds,
+      price: -proceeds,
     });
 
     await tx.insert(ledger).values({
