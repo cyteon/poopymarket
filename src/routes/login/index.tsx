@@ -5,20 +5,20 @@ import { getUser, login } from "~/server/auth";
 export default function Login() {
   const navigate = useNavigate();
 
-  const [username, setUsername] = createSignal("");
+  const [identifier, setIdentifier] = createSignal("");
   const [password, setPassword] = createSignal("");
   const [error, setError] = createSignal("");
 
   async function handleLogin() {
     setError("");
 
-    if (!username() || !password()) {
+    if (!identifier() || !password()) {
       setError("All fields are required");
       return;
     }
 
     try {
-      await login(username(), password());
+      await login(identifier(), password());
       await revalidate(getUser.key);
       navigate("/");
     } catch (err) {
@@ -36,11 +36,11 @@ export default function Login() {
         <h2 class="text-lg font-bold">Login</h2>
         <p class="text-sm text-ctp-subtext0! mb-4">Welcome back</p>
 
-        <label class="text-sm mb-1">Username</label>
+        <label class="text-sm mb-1">Username/email</label>
         <input
           type="text"
-          value={username()}
-          onInput={(e) => setUsername(e.currentTarget.value)}
+          value={identifier()}
+          onInput={(e) => setIdentifier(e.currentTarget.value)}
           class="w-full rounded-lg border bg-ctp-mantle p-2 mb-4"
         />
 

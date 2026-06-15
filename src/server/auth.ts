@@ -7,16 +7,16 @@ import { getCookie, setCookie } from "vinxi/http";
 import { query, redirect } from "@solidjs/router";
 import { getRequestEvent } from "solid-js/web";
 
-export async function login(username: string, password: string) {
+export async function login(identifier: string, password: string) {
   "use server";
 
   const [user] = await db
     .select()
     .from(users)
-    .where(eq(users.username, username));
+    .where(or(eq(users.username, identifier), eq(users.email, identifier)));
 
   if (!user) {
-    throw new Error("Invalid username or password");
+    throw new Error("Invalid username/email or password");
   }
 
   const valid = await bcrypt.compare(password, user.passwordHash);
