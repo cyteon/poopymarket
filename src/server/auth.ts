@@ -6,6 +6,8 @@ import { ledger, sessions, users } from "./db/schema";
 import { getCookie, getHeader, getRequestIP, setCookie } from "vinxi/http";
 import { query, redirect } from "@solidjs/router";
 import { getRequestEvent } from "solid-js/web";
+import { isDisposableEmail } from "disposable-email-domains-js";
+import { resolveMx } from "dns/promises";
 
 export async function login(identifier: string, password: string) {
   "use server";
@@ -60,7 +62,7 @@ export async function register(
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   if (!regex.test(email)) {
-    throw new Error("Invalid email format");
+    throw new Error("Invalid email address");
   }
 
   const [existing] = await db
@@ -70,6 +72,20 @@ export async function register(
 
   if (existing) {
     throw new Error("Username or email already exists");
+  }
+
+  if (isDisposableEmail(email)) {
+    throw new Error("Invalid email address");
+  }
+
+  try {
+    const records = await resolveMx(email.split("@")[1]);
+
+    if (records.length === 0) {
+      throw new Error("Invalid email address");
+    }
+  } catch {
+    throw new Error("Invalid email address");
   }
 
   const hashed = await bcrypt.hash(password, 12);
