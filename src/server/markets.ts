@@ -157,7 +157,73 @@ export async function resolveMarket(id: number, resolution: "YES" | "NO") {
       await tx.insert(ledger).values({
         userId: holder.userId,
         amount: payout,
-        description: `Payout for market ${market.question}`,
+        description: `Payout for market "${market.question}"`,
+      });
+    }
+  });
+}
+
+export async function reverseResolution(
+  id: number,
+  newResolution: "YES" | "NO",
+) {
+  const token = getCookie("token");
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await getUserFromToken(token);
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!user.admin) {
+    throw new Error("Only admins can reverse resolutions");
+  }
+
+  await db.transaction(async (tx) => {
+    const [market] = await tx
+      .select()
+      .from(markets)
+      .where(eq(markets.id, id))
+      .for("update");
+
+    if (!market) {
+      throw new Error("Market not found");
+    }
+
+    if (!market.resolved) {
+      throw new Error("Market is not resolved");
+    }
+
+    const oldResolution = market.resolution;
+
+    const holders = await tx
+      .select()
+      .from(positions)
+      .where(eq(positions.marketId, id));
+
+    for (const holder of holders) {
+      const oldPayout =
+        oldResolution === "YES" ? holder.yesShares : holder.noShares;
+
+      const newPayout =
+        newResolution === "YES" ? holder.yesShares : holder.noShares;
+
+      const delta = Math.floor(oldPayout - newPayout);
+      if (delta === 0) continue;
+
+      await tx
+        .update(users)
+        .set({ balance: sql`${users.balance} + ${delta}` })
+        .where(eq(users.id, holder.userId));
+
+      await tx.insert(ledger).values({
+        userId: holder.userId,
+        amount: delta,
+        description: `Resolution reversed (${oldResolution} -> ${newResolution}) for market "${market.question}"`,
       });
     }
   });
