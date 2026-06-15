@@ -8,20 +8,24 @@ export default function Navbar() {
 
   return (
     <nav class="p-2 px-4 border-b w-full bg-ctp-mantle flex items-center">
-      <a class="font-semibold hover:no-underline!" href="/">
+      <a class="font-semibold hover:no-underline! hidden lg:block" href="/">
         Poopy<span class="text-ctp-blue">market</span>
       </a>
 
-      <div class="mx-auto flex items-center">
-        <a href="/" class="rounded-md text-sm font-medium">
-          Home
-        </a>
+      <div class="lg:mx-auto mr-auto flex items-center text-sm">
+        <a href="/">Home</a>
 
         <p class="mx-2 text-ctp-surface2!">\</p>
 
-        <a href="/create" class="rounded-md text-sm font-medium">
-          Create
-        </a>
+        <a href="/create">Create</a>
+
+        <Show when={user()?.admin}>
+          <p class="mx-2 text-ctp-surface2!">\</p>
+
+          <a href="/admin" class="text-ctp-yellow!">
+            Admin
+          </a>
+        </Show>
       </div>
 
       <Show
