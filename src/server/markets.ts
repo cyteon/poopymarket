@@ -217,7 +217,7 @@ export async function reverseResolution(
       const newPayout =
         newResolution === "YES" ? holder.yesShares : holder.noShares;
 
-      const delta = Math.floor(oldPayout - newPayout);
+      const delta = Math.floor(newPayout - oldPayout);
       if (delta === 0) continue;
 
       await tx
