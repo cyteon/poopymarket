@@ -8,9 +8,9 @@ export default function Navbar() {
 
   return (
     <nav class="p-2 px-4 border-b w-full bg-ctp-mantle flex items-center">
-      <span class="font-semibold">
+      <a class="font-semibold hover:no-underline!" href="/">
         Poopy<span class="text-ctp-blue">market</span>
-      </span>
+      </a>
 
       <div class="mx-auto flex items-center">
         <a href="/" class="rounded-md text-sm font-medium">

@@ -137,7 +137,7 @@ export default function Market() {
 
       <Navbar />
 
-      <div class="max-w-4xl w-full mt-8 px-2">
+      <div class="max-w-4xl w-full mt-4 px-2 mb-4">
         <a href="/" class="text-xs text-ctp-subtext0 mb-2 inline-block">
           &larr; All Markets
         </a>
@@ -466,21 +466,27 @@ export default function Market() {
                   <tbody class="text-sm [&_td]:py-0.5">
                     {market()?.topPositions?.map((pos) => {
                       const m = market()!;
+
                       const valueFor = (side: "YES" | "NO", n: number) => {
                         if (n <= 0) return 0;
+
                         if (m.resolved) {
                           const won =
-                            (side === "YES" && m.resolution === "yes") ||
-                            (side === "NO" && m.resolution === "no");
+                            (side === "YES" && m.resolution === "YES") ||
+                            (side === "NO" && m.resolution === "NO");
+
                           return won ? Math.floor(n) : 0;
                         }
+
                         return floorPoints(
                           sellProceeds(m.b, m.qYes, m.qNo, side, n),
                         );
                       };
+
                       const value =
                         valueFor("YES", pos.yesShares) +
                         valueFor("NO", pos.noShares);
+
                       const pl = value - pos.spent;
 
                       return (
@@ -594,7 +600,7 @@ export default function Market() {
 
                       {shares() ? (netPayout() >= 0 ? "+" : "") : ""}
 
-                      {shares() ? netPayout().toFixed(2) : 0}
+                      {shares() ? Math.floor(netPayout()) : 0}
                     </p>
                   </div>
                 </Show>
