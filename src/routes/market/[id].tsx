@@ -152,6 +152,7 @@ export default function Market() {
         property="og:title"
         content={`${market()?.question} (${yesChance()}%)`}
       />
+
       <Meta property="og:description" content={market()?.rules} />
 
       <Navbar />
@@ -206,7 +207,7 @@ export default function Market() {
               }
             >
               <div
-                class={`p-4 rounded-md bg-ctp-surface0 border ${user()?.id !== market()?.creatorId ? "border-ctp-yellow! border-dashed" : ""}`}
+                class={`p-4 rounded-md border ${user()?.id !== market()?.creatorId ? "border-ctp-yellow! border-dashed bg-ctp-yellow/10" : "bg-ctp-surface0"}`}
               >
                 <Show
                   when={user()?.id !== market()?.creatorId}
@@ -573,7 +574,7 @@ export default function Market() {
                 </div>
 
                 <Show when={user()?.admin}>
-                  <div class="p-4 rounded-md border bg-ctp-yellow/25! border-ctp-yellow! border-dashed">
+                  <div class="p-4 rounded-md border bg-ctp-yellow/10! border-ctp-yellow! border-dashed">
                     <button
                       class="bg-ctp-red! border-ctp-surface1! enabled:hover:border-ctp-surface2! w-full rounded-lg p-2"
                       onClick={handleReverseResolution}

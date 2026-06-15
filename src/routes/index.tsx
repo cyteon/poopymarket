@@ -19,7 +19,7 @@ export default function Home() {
     <main class="flex flex-col min-h-screen">
       <Navbar />
 
-      <div class="flex w-full justify-center mt-2">
+      <div class="flex w-full justify-center mt-2 mb-2">
         <div class="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-">
           <For each={markets()}>
             {(market) => <Marketcard market={market} />}
