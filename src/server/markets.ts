@@ -200,6 +200,11 @@ export async function reverseResolution(
 
     const oldResolution = market.resolution;
 
+    await tx
+      .update(markets)
+      .set({ resolution: newResolution })
+      .where(eq(markets.id, id));
+
     const holders = await tx
       .select()
       .from(positions)

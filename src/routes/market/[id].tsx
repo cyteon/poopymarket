@@ -4,7 +4,7 @@ import Credit from "~/components/Credit";
 import Navbar from "~/components/Navbar";
 import { floorPoints, price, sellProceeds } from "~/lib/lmsr";
 import { getUser } from "~/server/auth";
-import { getMarket, resolveMarket } from "~/server/markets";
+import { getMarket, resolveMarket, reverseResolution } from "~/server/markets";
 import { sharesForSpend } from "../../lib/lmsr";
 import { buyShares, getUserShares, sellShares } from "~/server/shares";
 import { format } from "~/lib/utils";
@@ -120,6 +120,23 @@ export default function Market() {
         outcome,
         minValue,
       });
+
+      revalidate();
+      refetchMarket();
+      refetchShares();
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    }
+  }
+
+  async function handleReverseResolution() {
+    setError("");
+
+    try {
+      await reverseResolution(
+        market()!.id,
+        market()!.resolution === "YES" ? "NO" : "YES",
+      );
 
       revalidate();
       refetchMarket();
@@ -554,6 +571,17 @@ export default function Market() {
                     {market()?.resolution}
                   </h1>
                 </div>
+
+                <Show when={user()?.admin}>
+                  <div class="p-4 rounded-md border bg-ctp-yellow/25! border-ctp-yellow! border-dashed">
+                    <button
+                      class="bg-ctp-red! border-ctp-surface1! enabled:hover:border-ctp-surface2! w-full rounded-lg p-2"
+                      onClick={handleReverseResolution}
+                    >
+                      Reverse resolution
+                    </button>
+                  </div>
+                </Show>
 
                 <Show when={user() && shares()}>
                   <div class="p-4 rounded-md border bg-ctp-surface0">
