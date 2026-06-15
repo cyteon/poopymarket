@@ -1,5 +1,5 @@
 {
-  "id": "8ade9ca4-8c99-4bfd-9728-07fd7f0c0a1c",
+  "id": "d033f7b5-3da3-4882-9851-e37424706834",
   "prevId": "7450c530-8f51-413c-9764-d62720a67b73",
   "version": "7",
   "dialect": "postgresql",
@@ -130,13 +130,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
-        },
-        "suspended": {
-          "name": "suspended",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
         },
         "created_at": {
           "name": "created_at",
@@ -297,6 +290,20 @@
           "type": "bytea",
           "primaryKey": false,
           "notNull": true
+        },
+        "ip": {
+          "name": "ip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'unknown'"
+        },
+        "user_agent": {
+          "name": "user_agent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'unknown'"
         },
         "expires_at": {
           "name": "expires_at",

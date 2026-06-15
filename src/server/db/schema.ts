@@ -34,6 +34,8 @@ export const sessions = pgTable("sessions", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   token: bytea("token").notNull().unique(),
+  ip: text("ip").notNull().default("unknown"),
+  userAgent: text("user_agent").notNull().default("unknown"),
   expiresAt: text("expires_at").notNull(),
 });
 

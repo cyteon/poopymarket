@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { createHash, randomBytes } from "crypto";
 import { db } from "./db";
 import { ledger, sessions, users } from "./db/schema";
-import { getCookie, setCookie } from "vinxi/http";
+import { getCookie, getHeader, getRequestIP, setCookie } from "vinxi/http";
 import { query, redirect } from "@solidjs/router";
 import { getRequestEvent } from "solid-js/web";
 
@@ -28,9 +28,13 @@ export async function login(identifier: string, password: string) {
   const token = randomBytes(32).toString("hex");
   const sha256 = createHash("sha256").update(token).digest();
 
+  const clientInfo = await getClientInfo();
+
   await db.insert(sessions).values({
     userId: user.id,
     token: sha256,
+    ip: clientInfo.ip,
+    userAgent: clientInfo.userAgent,
     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   });
 
@@ -53,6 +57,12 @@ export async function register(
     throw new Error("Password must be at least 8 characters long");
   }
 
+  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  if (!regex.test(email)) {
+    throw new Error("Invalid email format");
+  }
+
   const [existing] = await db
     .select()
     .from(users)
@@ -72,9 +82,13 @@ export async function register(
   const token = randomBytes(32).toString("hex");
   const sha256 = createHash("sha256").update(token).digest();
 
+  const clientInfo = await getClientInfo();
+
   await db.insert(sessions).values({
     userId: user.id,
     token: sha256,
+    ip: clientInfo.ip,
+    userAgent: clientInfo.userAgent,
     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   });
 
@@ -148,3 +162,16 @@ export const requireUser = query(async () => {
 
   return user;
 }, "requireUser");
+
+async function getClientInfo() {
+  const event = getRequestEvent()!.nativeEvent;
+
+  const userAgent = getHeader(event, "user-agent") || "unknown";
+
+  const ip =
+    getRequestIP(event, { xForwardedFor: true }) ||
+    getHeader(event, "x-forwarded-for")?.split(",")[0].trim() ||
+    "unknown";
+
+  return { userAgent, ip };
+}
