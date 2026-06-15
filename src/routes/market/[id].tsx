@@ -10,6 +10,7 @@ import { buyShares, getUserShares, sellShares } from "~/server/shares";
 import { format } from "~/lib/utils";
 import { Chart } from "~/components/Chart";
 import { Meta } from "@solidjs/meta";
+import { TriangleAlert } from "lucide-solid";
 
 export const route = {
   preload: () => getUser(),
@@ -613,7 +614,17 @@ export default function Market() {
               </div>
             }
           >
-            <div class="flex flex-col w-1/3">
+            <div class="flex flex-col w-1/3 gap-4">
+              <Show when={market()?.preventCreatorResolution}>
+                <div class="p-4 rounded-md border bg-ctp-blue/25 border-ctp-blue!">
+                  <p class="text-sm">
+                    <TriangleAlert class="inline mr-1" size={16} />
+                    An admin has decided to prevent the market creator from
+                    resolving this market. Only an admin will be able to.
+                  </p>
+                </div>
+              </Show>
+
               <div class="p-4 rounded-md border bg-ctp-surface0">
                 <div class="flex gap-2 text-sm">
                   <button
