@@ -177,9 +177,11 @@ export async function getUserShares(marketId: number) {
 export async function sellShares({
   marketId,
   outcome,
+  minValue,
 }: {
   marketId: number;
   outcome: "YES" | "NO";
+  minValue: number;
 }) {
   const token = getCookie("token");
 
@@ -237,6 +239,10 @@ export async function sellShares({
     const proceeds = floorPoints(
       sellProceeds(market.b, market.qYes, market.qNo, outcome, userShares),
     );
+
+    if (proceeds < minValue * 0.99) {
+      throw new Error(">1% slippage, refresh and try again");
+    }
 
     await tx
       .update(users)

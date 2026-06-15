@@ -10,7 +10,7 @@ import { buyShares, getUserShares, sellShares } from "~/server/shares";
 import { format } from "~/lib/utils";
 import { Chart } from "~/components/Chart";
 import { Meta } from "@solidjs/meta";
-import { TriangleAlert } from "lucide-solid";
+import { Info } from "lucide-solid";
 
 export const route = {
   preload: () => getUser(),
@@ -111,13 +111,14 @@ export default function Market() {
     }
   }
 
-  async function handleSell(outcome: "YES" | "NO") {
+  async function handleSell(outcome: "YES" | "NO", minValue: number) {
     setError("");
 
     try {
       await sellShares({
         marketId: market()!.id,
         outcome,
+        minValue,
       });
 
       revalidate();
@@ -143,7 +144,7 @@ export default function Market() {
           &larr; All Markets
         </a>
 
-        <div class="flex gap-4 flex-col lg:flex-row">
+        <div class="flex gap-4 flex-col-reverse lg:flex-row">
           <div class="flex flex-col lg:w-2/3 gap-4">
             <div class="p-4 rounded-md border bg-ctp-surface0">
               <h1 class="text-xl font-bold">{market()?.question}</h1>
@@ -347,7 +348,7 @@ export default function Market() {
                                     );
 
                                     if (confirm) {
-                                      handleSell("YES");
+                                      handleSell("YES", value);
                                     }
                                   }}
                                   disabled={
@@ -434,7 +435,7 @@ export default function Market() {
                                     );
 
                                     if (confirm) {
-                                      handleSell("NO");
+                                      handleSell("NO", value);
                                     }
                                   }}
                                   disabled={
@@ -614,11 +615,11 @@ export default function Market() {
               </div>
             }
           >
-            <div class="flex flex-col w-1/3 gap-4">
+            <div class="flex flex-col lg:w-1/3 gap-4">
               <Show when={market()?.preventCreatorResolution}>
                 <div class="p-4 rounded-md border bg-ctp-blue/25 border-ctp-blue!">
                   <p class="text-sm">
-                    <TriangleAlert class="inline mr-1" size={16} />
+                    <Info class="inline mr-1 mb-0.5" size={14} />
                     An admin has decided to prevent the market creator from
                     resolving this market. Only an admin will be able to.
                   </p>
