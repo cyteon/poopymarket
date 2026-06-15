@@ -7,7 +7,7 @@ export default function Admin() {
   const overview = createAsync(() => getOverview());
 
   return (
-    <div class="flex w-full">
+    <main class="flex w-full">
       <div class="flex w-full h-fit gap-2">
         <div class="p-4 border rounded-md bg-ctp-surface0 w-full flex flex-col">
           <p class="text-sm text-ctp-subtext0 mb-2">Total volume</p>
@@ -38,6 +38,6 @@ export default function Admin() {
           </p>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

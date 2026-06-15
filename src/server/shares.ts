@@ -48,7 +48,7 @@ export async function buyShares({
   }
 
   if (user.banned) {
-    throw new Error("User is banned");
+    throw new Error("Your account has been banned");
   }
 
   if (spend > user.balance) {
@@ -194,7 +194,7 @@ export async function sellShares({
   }
 
   if (user.banned) {
-    throw new Error("User is banned");
+    throw new Error("Your account has been banned");
   }
 
   await db.transaction(async (tx) => {

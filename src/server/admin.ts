@@ -1,8 +1,8 @@
 "use server";
 
-import { sum } from "drizzle-orm";
+import { eq, sql, sum } from "drizzle-orm";
 import { db } from "./db";
-import { markets, trades, users } from "./db/schema";
+import { ledger, markets, trades, users } from "./db/schema";
 import { getCookie } from "vinxi/http";
 import { getUserFromToken } from "./auth";
 
@@ -57,7 +57,61 @@ export async function getUsers() {
       admin: users.admin,
       banned: users.banned,
     })
-    .from(users);
+    .from(users)
+    .orderBy(users.id);
 
   return usersData;
+}
+
+export async function adjustBalance(userId: number, amount: number) {
+  const token = getCookie("token");
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await getUserFromToken(token);
+
+  if (!user || !user.admin) {
+    throw new Error("Unauthorized");
+  }
+
+  await db
+    .update(users)
+    .set({ balance: sql`${users.balance} + ${amount}` })
+    .where(eq(users.id, userId));
+
+  await db.insert(ledger).values({
+    userId,
+    amount,
+    description: "Balance adjusted by admin",
+  });
+}
+
+export async function toggleBanned(userId: number) {
+  const token = getCookie("token");
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await getUserFromToken(token);
+
+  if (!user || !user.admin) {
+    throw new Error("Unauthorized");
+  }
+
+  const [targetUser] = await db
+    .select({ banned: users.banned })
+    .from(users)
+    .where(eq(users.id, userId));
+
+  if (!targetUser) {
+    throw new Error("User not found");
+  }
+
+  await db
+    .update(users)
+    .set({ banned: !targetUser.banned })
+    .where(eq(users.id, userId));
 }
