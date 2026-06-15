@@ -25,6 +25,7 @@ export const users = pgTable("users", {
   passwordHash: text("password_hash").notNull(),
   balance: integer("balance").notNull().default(1000),
   admin: boolean("admin").notNull().default(false),
+  banned: boolean("banned").notNull().default(false),
 });
 
 export const sessions = pgTable("sessions", {

@@ -23,6 +23,10 @@ export async function createMarket(question: string, rules: string) {
     throw new Error("Unauthorized");
   }
 
+  if (user.banned) {
+    throw new Error("User is banned");
+  }
+
   if (user.balance < 500) {
     throw new Error("Insufficient balance");
   }
@@ -100,6 +104,10 @@ export async function resolveMarket(id: number, resolution: "YES" | "NO") {
 
   if (!user) {
     throw new Error("Unauthorized");
+  }
+
+  if (user.banned) {
+    throw new Error("User is banned");
   }
 
   await db.transaction(async (tx) => {

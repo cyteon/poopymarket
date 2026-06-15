@@ -103,6 +103,7 @@ export async function getUserFromToken(token: string) {
       email: users.email,
       balance: users.balance,
       admin: users.admin,
+      banned: users.banned,
     })
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))
@@ -139,6 +140,10 @@ export const requireUser = query(async () => {
 
   if (!user) {
     throw redirect("/login");
+  }
+
+  if (user.banned) {
+    throw redirect("/banned");
   }
 
   return user;

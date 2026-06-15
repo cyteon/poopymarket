@@ -47,6 +47,10 @@ export async function buyShares({
     throw new Error("Unauthorized");
   }
 
+  if (user.banned) {
+    throw new Error("User is banned");
+  }
+
   if (spend > user.balance) {
     throw new Error("Insufficient balance");
   }
@@ -187,6 +191,10 @@ export async function sellShares({
 
   if (!user) {
     throw new Error("Unauthorized");
+  }
+
+  if (user.banned) {
+    throw new Error("User is banned");
   }
 
   await db.transaction(async (tx) => {
