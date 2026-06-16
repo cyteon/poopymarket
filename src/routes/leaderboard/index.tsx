@@ -1,5 +1,4 @@
-import { createAsync, revalidate } from "@solidjs/router";
-import { DollarSign, Hammer } from "lucide-solid";
+import { createAsync } from "@solidjs/router";
 import { For } from "solid-js";
 import Credit from "~/components/Credit";
 import Navbar from "~/components/Navbar";

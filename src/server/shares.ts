@@ -1,9 +1,7 @@
-"use server";
-
 import { getCookie } from "vinxi/http";
 import { getUserFromToken } from "./auth";
 import { db } from "./db";
-import { ledger, markets, positions, trades, users } from "./db/schema";
+import { ledger, markets, positions, trades, User, users } from "./db/schema";
 import { and, eq, sql } from "drizzle-orm";
 import {
   floorPoints,
@@ -11,6 +9,36 @@ import {
   sellProceeds,
   sharesForSpend,
 } from "~/lib/lmsr";
+
+export async function getUserShares(marketId: number) {
+  "use server";
+
+  const token = getCookie("token");
+
+  if (!token) {
+    return { yesShares: 0, noShares: 0 };
+  }
+
+  const user = await getUserFromToken(token);
+
+  if (!user) {
+    return { yesShares: 0, noShares: 0 };
+  }
+
+  const [position] = await db
+    .select()
+    .from(positions)
+    .where(
+      and(eq(positions.marketId, marketId), eq(positions.userId, user.id)),
+    );
+
+  return {
+    yesShares: position?.yesShares || 0,
+    noShares: position?.noShares || 0,
+    yesSpent: position?.yesSpent || 0,
+    noSpent: position?.noSpent || 0,
+  };
+}
 
 export async function buyShares({
   marketId,
@@ -23,6 +51,8 @@ export async function buyShares({
   spend: number;
   minShares: number;
 }) {
+  "use server";
+
   if (spend <= 0) {
     throw new Error("Spend must be greater than 0");
   }
@@ -55,7 +85,29 @@ export async function buyShares({
     throw new Error("Insufficient balance");
   }
 
-  await db.transaction(async (tx) => {
+  await buySharesForUser({
+    user,
+    marketId,
+    outcome,
+    spend,
+    minShares,
+  });
+}
+
+export async function buySharesForUser({
+  user,
+  marketId,
+  outcome,
+  spend,
+  minShares,
+}: {
+  user: Omit<User, "passwordHash">;
+  marketId: number;
+  outcome: "YES" | "NO";
+  spend: number;
+  minShares: number;
+}) {
+  return await db.transaction(async (tx) => {
     const [market] = await tx
       .select()
       .from(markets)
@@ -143,35 +195,9 @@ export async function buyShares({
       amount: -spend,
       description: `Bought ${shares.toFixed(2)} ${outcome} on market #${marketId}`,
     });
+
+    return { bought: shares, probAfter };
   });
-}
-
-export async function getUserShares(marketId: number) {
-  const token = getCookie("token");
-
-  if (!token) {
-    return { yesShares: 0, noShares: 0 };
-  }
-
-  const user = await getUserFromToken(token);
-
-  if (!user) {
-    return { yesShares: 0, noShares: 0 };
-  }
-
-  const [position] = await db
-    .select()
-    .from(positions)
-    .where(
-      and(eq(positions.marketId, marketId), eq(positions.userId, user.id)),
-    );
-
-  return {
-    yesShares: position?.yesShares || 0,
-    noShares: position?.noShares || 0,
-    yesSpent: position?.yesSpent || 0,
-    noSpent: position?.noSpent || 0,
-  };
 }
 
 export async function sellShares({
@@ -183,6 +209,8 @@ export async function sellShares({
   outcome: "YES" | "NO";
   minValue: number;
 }) {
+  "use server";
+
   const token = getCookie("token");
 
   if (!token) {
@@ -199,7 +227,26 @@ export async function sellShares({
     throw new Error("Your account has been banned");
   }
 
-  await db.transaction(async (tx) => {
+  await sellSharesForUser({
+    user,
+    marketId,
+    outcome,
+    minValue,
+  });
+}
+
+export async function sellSharesForUser({
+  user,
+  marketId,
+  outcome,
+  minValue,
+}: {
+  user: Omit<User, "passwordHash">;
+  marketId: number;
+  outcome: "YES" | "NO";
+  minValue: number;
+}) {
+  return await db.transaction(async (tx) => {
     const [market] = await tx
       .select()
       .from(markets)
@@ -290,5 +337,11 @@ export async function sellShares({
       amount: proceeds,
       description: `Sold ${userShares.toFixed(2)} ${outcome} on market #${marketId}`,
     });
+
+    return {
+      sold: userShares,
+      proceeds,
+      originalSpent: outcome === "YES" ? position.yesSpent : position.noSpent,
+    };
   });
 }
