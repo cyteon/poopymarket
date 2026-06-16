@@ -1,6 +1,12 @@
 // @refresh reload
 import { createHandler, StartServer } from "@solidjs/start/server";
 
+const warn = console.warn;
+console.warn = (msg, ...rest) => {
+  if (msg === "No route matched for preloading js assets") return;
+  warn(msg, ...rest);
+};
+
 export default createHandler(() => (
   <StartServer
     document={({ assets, children, scripts }) => (
