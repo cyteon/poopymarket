@@ -29,7 +29,9 @@ export default function Markets() {
 
                   <td class="p-2 px-3">{market.creator}</td>
 
-                  <td class="p-2 px-3">{market.question}</td>
+                  <td class="p-2 px-3 truncate max-w-[200px]">
+                    {market.question}
+                  </td>
 
                   <td class="p-2 px-3 inline-flex items-center justify-end gap-1">
                     <Credit />
