@@ -5,5 +5,10 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  server: {
+    externals: {
+      inline: ["@modelcontextprotocol/sdk"],
+    },
+  },
   ssr: true,
 });
