@@ -37,22 +37,26 @@ export default function Market() {
   );
 
   const netPayout = () => {
-    if (!shares()) return 0;
+    if (!shares() || !market()) return 0;
 
     const yesPayout =
-      shares()!.yesShares * (market()?.resolution === "YES" ? 1 : 0);
+      shares()!.yesShares * (market()!.resolution === "YES" ? 1 : 0);
     const noPayout =
-      shares()!.noShares * (market()?.resolution === "NO" ? 1 : 0);
+      shares()!.noShares * (market()!.resolution === "NO" ? 1 : 0);
 
-    return yesPayout + noPayout - shares()?.yesSpent - shares()?.noSpent;
+    return yesPayout + noPayout - shares()!.yesSpent! - shares()!.noSpent!;
   };
 
   const yesChance = () => {
-    return (price(market()?.b, market()?.qYes, market()?.qNo) * 100).toFixed(0);
+    if (!market()) return "0";
+
+    return (price(market()!.b, market()!.qYes, market()!.qNo) * 100).toFixed(0);
   };
 
   const noChance = () => {
-    return (100.0 - yesChance()).toFixed(0);
+    if (!market()) return "0";
+
+    return (100 - Number(yesChance())).toFixed(0);
   };
 
   const [error, setError] = createSignal("");
@@ -60,10 +64,12 @@ export default function Market() {
   const [spend, setSpend] = createSignal(0);
 
   const buyingShares = () => {
+    if (!market()) return 0;
+
     return sharesForSpend(
-      market()?.b,
-      market()?.qYes,
-      market()?.qNo,
+      market()!.b,
+      market()!.qYes,
+      market()!.qNo,
       outcome(),
       spend(),
     );
@@ -196,7 +202,7 @@ export default function Market() {
                   <Credit />
                 </div>
 
-                <p>{format(market()?.volume)} vol.</p>
+                <p>{format(market()?.volume ?? 0)} vol.</p>
               </div>
             </div>
 
@@ -270,7 +276,7 @@ export default function Market() {
             <div class="p-4 rounded-md border bg-ctp-surface0">
               <p class="text-sm font-bold mb-2">Chance over time</p>
 
-              <Chart data={market()?.points!} />
+              <Chart data={market()?.points ?? []} />
             </div>
 
             <Show
