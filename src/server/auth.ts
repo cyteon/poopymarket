@@ -134,6 +134,7 @@ export async function getUserFromToken(token: string) {
       balance: users.balance,
       admin: users.admin,
       banned: users.banned,
+      lastDaily: users.lastDaily,
     })
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))

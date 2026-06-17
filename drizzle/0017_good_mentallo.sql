@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "last_daily" timestamp with time zone DEFAULT to_timestamp(0) NOT NULL;

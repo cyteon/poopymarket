@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
   customType,
@@ -26,6 +27,9 @@ export const users = pgTable("users", {
   balance: integer("balance").notNull().default(1000),
   admin: boolean("admin").notNull().default(false),
   banned: boolean("banned").notNull().default(false),
+  lastDaily: timestamp("last_daily", { withTimezone: true })
+    .notNull()
+    .default(sql`to_timestamp(0)`),
 });
 
 export const sessions = pgTable("sessions", {
