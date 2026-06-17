@@ -7,7 +7,7 @@ import { db } from "~/server/db";
 import { markets, positions, users } from "~/server/db/schema";
 import { getTop10 } from "~/server/leaderboard";
 import { getMarket, getMarkets } from "~/server/markets";
-import { buySharesForUser, sellSharesForUser } from "~/server/shares";
+import { buySharesForUser, sellSharesForUser } from "~/server/shares.server";
 
 export async function POST({ request }: { request: Request }) {
   const token = new URL(request.url).searchParams.get("token");

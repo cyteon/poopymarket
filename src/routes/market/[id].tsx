@@ -6,7 +6,7 @@ import { floorPoints, price, sellProceeds } from "~/lib/lmsr";
 import { getUser } from "~/server/auth";
 import { getMarket, resolveMarket, reverseResolution } from "~/server/markets";
 import { sharesForSpend } from "../../lib/lmsr";
-import { buyShares, getUserShares, sellShares } from "~/server/shares";
+import { buyShares, getUserShares, sellShares } from "~/server/shares.actions";
 import { format } from "~/lib/utils";
 import { Chart } from "~/components/Chart";
 import { Meta } from "@solidjs/meta";
