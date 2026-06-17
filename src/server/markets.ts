@@ -4,7 +4,7 @@ import { getCookie } from "vinxi/http";
 import { getUserFromToken } from "./auth";
 import { ledger, markets, positions, trades, users } from "./db/schema";
 import { db } from "./db";
-import { asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 
 export async function createMarket(question: string, rules: string) {
   if (!question.trim() || !rules.trim()) {
@@ -43,7 +43,7 @@ export async function createMarket(question: string, rules: string) {
 
   await db
     .update(users)
-    .set({ balance: user.balance - 500 })
+    .set({ balance: sql`${users.balance} - 500` })
     .where(eq(users.id, user.id));
 
   return { id: market.id };
@@ -78,7 +78,7 @@ export async function getMarket(id: number) {
     })
     .from(positions)
     .innerJoin(users, eq(positions.userId, users.id))
-    .where(eq(positions.marketId, id))
+    .where(and(eq(positions.marketId, id), eq(users.banned, false)))
     .orderBy(desc(sql`(${positions.yesShares} + ${positions.noShares})`))
     .limit(5);
 
@@ -147,7 +147,7 @@ export async function resolveMarket(id: number, resolution: "YES" | "NO") {
       const winningShares =
         resolution === "YES" ? holder.yesShares : holder.noShares;
 
-      const payout = Math.floor(winningShares * 0.95);
+      const payout = Math.floor(winningShares);
       if (payout <= 0) continue;
 
       await tx

@@ -3,10 +3,10 @@ import { For } from "solid-js";
 import Credit from "~/components/Credit";
 import Navbar from "~/components/Navbar";
 import { format } from "~/lib/utils";
-import { getTop10 } from "~/server/leaderboard";
+import { getTop20 } from "~/server/leaderboard";
 
 export default function Leaderboard() {
-  const users = createAsync(() => getTop10());
+  const users = createAsync(() => getTop20());
 
   return (
     <main class="flex flex-col min-h-screen items-center">

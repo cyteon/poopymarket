@@ -5,7 +5,7 @@ import z from "zod";
 import { getUserFromToken } from "~/server/auth";
 import { db } from "~/server/db";
 import { markets, positions, users } from "~/server/db/schema";
-import { getTop10 } from "~/server/leaderboard";
+import { getTop20 } from "~/server/leaderboard";
 import { getMarket, getMarkets } from "~/server/markets";
 import { buySharesForUser, sellSharesForUser } from "~/server/shares.server";
 
@@ -134,7 +134,7 @@ export async function POST({ request }: { request: Request }) {
       content: [
         {
           type: "text",
-          text: JSON.stringify(await getTop10()),
+          text: JSON.stringify(await getTop20()),
         },
       ],
     }),

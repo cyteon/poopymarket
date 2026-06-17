@@ -49,7 +49,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav class="flex lg:grid lg:grid-cols-3 items-center p-2 px-4 border-b w-full bg-ctp-mantle">
+    <nav class="flex flex-col lg:grid lg:grid-cols-3 items-center p-2 px-4 border-b w-full bg-ctp-mantle">
       <a
         class="font-semibold hover:no-underline! hidden lg:block lg:col-start-1 lg:justify-self-start"
         href="/"
@@ -80,7 +80,7 @@ export default function Navbar() {
       <Show
         when={!user()}
         fallback={
-          <div class="lg:justify-self-end flex gap-3">
+          <div class="lg:justify-self-end ml-auto mt-1 lg:mt-0 flex gap-3">
             <span class="lg:col-start-3 px-2 py-0.5 border rounded-full text-sm font-semibold flex">
               <div class="mr-1 my-auto">
                 <Credit />

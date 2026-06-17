@@ -4,7 +4,7 @@ import { desc, eq } from "drizzle-orm";
 import { users } from "./db/schema";
 import { db } from "./db";
 
-export async function getTop10() {
+export async function getTop20() {
   const result = await db
     .select({
       username: users.username,
@@ -13,7 +13,7 @@ export async function getTop10() {
     .from(users)
     .orderBy(desc(users.balance))
     .where(eq(users.banned, false))
-    .limit(10);
+    .limit(20);
 
   return result;
 }

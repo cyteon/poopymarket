@@ -3,7 +3,7 @@
 import { getCookie } from "vinxi/http";
 import { getUserFromToken } from "./auth";
 import { db } from "./db";
-import { users } from "./db/schema";
+import { ledger, users } from "./db/schema";
 import { eq } from "drizzle-orm";
 
 export async function claimDailyCredits() {
@@ -44,5 +44,11 @@ export async function claimDailyCredits() {
         lastDaily: new Date(),
       })
       .where(eq(users.id, user.id));
+
+    await tx.insert(ledger).values({
+      userId: user.id,
+      amount: 100,
+      description: "Daily credits claim",
+    });
   });
 }

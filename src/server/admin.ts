@@ -1,12 +1,12 @@
-"use server";
-
 import { desc, eq, sql, sum } from "drizzle-orm";
 import { db } from "./db";
 import { ledger, markets, trades, users } from "./db/schema";
 import { getCookie } from "vinxi/http";
 import { getUserFromToken } from "./auth";
+import { query, redirect } from "@solidjs/router";
 
 export async function getOverview() {
+  "use server";
   const token = getCookie("token");
 
   if (!token) {
@@ -36,6 +36,7 @@ export async function getOverview() {
 }
 
 export async function getUsers() {
+  "use server";
   const token = getCookie("token");
 
   if (!token) {
@@ -64,6 +65,7 @@ export async function getUsers() {
 }
 
 export async function adjustBalance(userId: number, amount: number) {
+  "use server";
   const token = getCookie("token");
 
   if (!token) {
@@ -89,6 +91,7 @@ export async function adjustBalance(userId: number, amount: number) {
 }
 
 export async function toggleBanned(userId: number) {
+  "use server";
   const token = getCookie("token");
 
   if (!token) {
@@ -117,6 +120,7 @@ export async function toggleBanned(userId: number) {
 }
 
 export async function getMarkets() {
+  "use server";
   const token = getCookie("token");
 
   if (!token) {
@@ -147,6 +151,7 @@ export async function getMarkets() {
 
 // this will be large so pagination needed
 export async function getTrades(page: number) {
+  "use server";
   const token = getCookie("token");
 
   if (!token) {
@@ -179,3 +184,20 @@ export async function getTrades(page: number) {
 
   return { d: tradesData, pageCount };
 }
+
+export const requireAdmin = query(async () => {
+  "use server";
+  const token = getCookie("token");
+
+  if (!token) {
+    throw redirect("/login");
+  }
+
+  const user = await getUserFromToken(token);
+
+  if (!user || !user.admin) {
+    throw redirect("/login");
+  }
+
+  return user;
+}, "requireAdmin");

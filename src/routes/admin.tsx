@@ -1,6 +1,11 @@
 import { useLocation } from "@solidjs/router";
 import { LayoutDashboard, Receipt, ShoppingBasket, User } from "lucide-solid";
 import Navbar from "~/components/Navbar";
+import { requireAdmin } from "~/server/admin";
+
+export const route = {
+  preload: () => requireAdmin(),
+};
 
 export default function AdminLayout(props: { children: Node }) {
   const location = useLocation();

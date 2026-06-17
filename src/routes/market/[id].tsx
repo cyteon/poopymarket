@@ -409,7 +409,7 @@ export default function Market() {
                               ),
                             );
 
-                        const pl = value - shares()!.noSpent;
+                        const pl = value - shares()!.noSpent!;
 
                         return (
                           <tr>
@@ -423,7 +423,7 @@ export default function Market() {
                               <span class="inline-flex items-center justify-end gap-1">
                                 <Credit />
                                 {(
-                                  shares()!.noSpent / shares()!.noShares
+                                  shares()!.noSpent! / shares()!.noShares
                                 ).toFixed(2)}
                               </span>
                             </td>
@@ -686,7 +686,10 @@ export default function Market() {
 
                   <input
                     type="number"
-                    onkeydown="if(event.key==='.' || event.key===',') event.preventDefault();"
+                    onkeydown={(event) => {
+                      if (event.key === "." || event.key === ",")
+                        event.preventDefault();
+                    }}
                     value={spend()}
                     onInput={(e) => {
                       setSpend(parseFloat(e.currentTarget.value));
