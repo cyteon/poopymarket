@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import z from "zod";
 import { getUserFromToken } from "~/server/auth";
 import { db } from "~/server/db";
@@ -25,6 +25,13 @@ export async function POST({ request }: { request: Request }) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (user.banned) {
+    return Response.json(
+      { error: "The user has been banned" },
+      { status: 403 },
+    );
+  }
+
   const server = new McpServer({ name: "poopymarket", version: "1.0.0" });
 
   server.registerTool(
@@ -39,6 +46,28 @@ export async function POST({ request }: { request: Request }) {
     },
     async () => {
       user = await getUserFromToken(token);
+
+      if (!user) {
+        return {
+          isError: true,
+          content: [
+            {
+              type: "text",
+              text: "User not found",
+            },
+          ],
+        };
+      } else if (user.banned) {
+        return {
+          isError: true,
+          content: [
+            {
+              type: "text",
+              text: "The user has been banned",
+            },
+          ],
+        };
+      }
 
       return {
         content: [
@@ -161,7 +190,7 @@ export async function POST({ request }: { request: Request }) {
       },
     },
     async () => {
-      const markets = (await getMarkets()).filter((m) => !m.resolved);
+      const markets = await getMarkets();
 
       return {
         content: [
@@ -305,6 +334,28 @@ export async function POST({ request }: { request: Request }) {
       try {
         user = await getUserFromToken(token);
 
+        if (!user) {
+          return {
+            isError: true,
+            content: [
+              {
+                type: "text",
+                text: "User not found",
+              },
+            ],
+          };
+        } else if (user.banned) {
+          return {
+            isError: true,
+            content: [
+              {
+                type: "text",
+                text: "The user has been banned",
+              },
+            ],
+          };
+        }
+
         if (user.balance < 500) {
           return {
             isError: true,
@@ -329,7 +380,7 @@ export async function POST({ request }: { request: Request }) {
 
         await db
           .update(users)
-          .set({ balance: user.balance - 500 })
+          .set({ balance: sql`${users.balance} - 500` })
           .where(eq(users.id, user.id));
 
         return {

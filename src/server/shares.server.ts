@@ -21,11 +21,21 @@ export async function buySharesForUser({
   spend: number;
   minShares: number;
 }) {
-  if (user.balance < spend) {
-    throw new Error("Insufficient balance");
-  }
-
   return await db.transaction(async (tx) => {
+    [user] = await tx
+      .select()
+      .from(users)
+      .where(eq(users.id, user.id))
+      .for("update");
+
+    if (user.balance < spend) {
+      throw new Error("Insufficient balance");
+    }
+
+    if (user.banned) {
+      throw new Error("User is banned");
+    }
+
     const [market] = await tx
       .select()
       .from(markets)
@@ -130,6 +140,16 @@ export async function sellSharesForUser({
   minValue: number;
 }) {
   return await db.transaction(async (tx) => {
+    [user] = await tx
+      .select()
+      .from(users)
+      .where(eq(users.id, user.id))
+      .for("update");
+
+    if (user.banned) {
+      throw new Error("User is banned");
+    }
+
     const [market] = await tx
       .select()
       .from(markets)
@@ -193,8 +213,8 @@ export async function sellSharesForUser({
       .set({
         yesShares: outcome === "YES" ? 0 : position.yesShares,
         noShares: outcome === "NO" ? 0 : position.noShares,
-        yesSpent: sql`greatest(${positions.yesShares} - ${outcome === "YES" ? userShares : 0}, 0)`,
-        noSpent: sql`greatest(${positions.noShares} - ${outcome === "NO" ? userShares : 0}, 0)`,
+        yesSpent: outcome === "YES" ? 0 : position.yesSpent,
+        noSpent: outcome === "NO" ? 0 : position.noSpent,
       })
       .where(
         and(eq(positions.marketId, marketId), eq(positions.userId, user.id)),

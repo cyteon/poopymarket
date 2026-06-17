@@ -46,8 +46,6 @@ export async function buyShares({
   spend: number;
   minShares: number;
 }) {
-  "use server";
-
   if (spend <= 0) {
     throw new Error("Spend must be greater than 0");
   }
