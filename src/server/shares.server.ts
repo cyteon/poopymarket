@@ -21,6 +21,10 @@ export async function buySharesForUser({
   spend: number;
   minShares: number;
 }) {
+  if (user.balance < spend) {
+    throw new Error("Insufficient balance");
+  }
+
   return await db.transaction(async (tx) => {
     const [market] = await tx
       .select()

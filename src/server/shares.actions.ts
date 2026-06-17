@@ -76,10 +76,6 @@ export async function buyShares({
     throw new Error("Your account has been banned");
   }
 
-  if (spend > user.balance) {
-    throw new Error("Insufficient balance");
-  }
-
   await buySharesForUser({
     user,
     marketId,
