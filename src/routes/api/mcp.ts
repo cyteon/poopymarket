@@ -124,7 +124,7 @@ export async function POST({ request }: { request: Request }) {
     "get_leaderboard",
     {
       title: "Get leaderboard",
-      description: "Get the top 10 users by balance",
+      description: "Get the top 20 users by balance",
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -324,13 +324,16 @@ export async function POST({ request }: { request: Request }) {
       inputSchema: {
         question: z.string().describe("Question for the market"),
         rules: z.string().describe("Rules for the market"),
+        category: z
+          .enum(["Tech", "Politics", "Sports", "Finance", "Other"])
+          .describe("Category for the market"),
       },
       annotations: {
         readOnlyHint: false,
         destructiveHint: true,
       },
     },
-    async ({ question, rules }) => {
+    async ({ question, rules, category }) => {
       try {
         user = await getUserFromToken(token);
 
@@ -375,6 +378,7 @@ export async function POST({ request }: { request: Request }) {
             rules,
             creatorId: user.id,
             b: 1000,
+            category,
           })
           .returning();
 

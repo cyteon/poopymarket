@@ -4,6 +4,7 @@ import {
   customType,
   doublePrecision,
   integer,
+  pgEnum,
   pgTable,
   serial,
   text,
@@ -59,6 +60,11 @@ export const markets = pgTable("markets", {
   preventCreatorResolution: boolean("prevent_creator_resolution")
     .notNull()
     .default(false), // admin option for locking market resolution to admin-only
+  category: text("category", {
+    enum: ["Tech", "Politics", "Sports", "Finance", "Other"],
+  })
+    .notNull()
+    .default("Other"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

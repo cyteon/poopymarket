@@ -127,6 +127,13 @@
       "when": 1781701414766,
       "tag": "0017_good_mentallo",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1781726835289,
+      "tag": "0018_silly_hitman",
+      "breakpoints": true
     }
   ]
 }

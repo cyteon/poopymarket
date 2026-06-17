@@ -15,6 +15,10 @@ export default function Create() {
 
   const [question, setQuestion] = createSignal("");
   const [rules, setRules] = createSignal("");
+  const [category, setCategory] = createSignal<
+    "Tech" | "Politics" | "Sports" | "Finance" | "Other"
+  >("Other");
+
   const [error, setError] = createSignal("");
 
   async function handleCreate() {
@@ -28,7 +32,7 @@ export default function Create() {
     }
 
     try {
-      const { id } = await createMarket(question(), rules());
+      const { id } = await createMarket(question(), rules(), category());
       navigate(`/market/${id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -76,6 +80,19 @@ export default function Create() {
             placeholder="Resolves to 'Yes' if GTA 6 is released before January 1st, 2027. Otherwise resolves to 'No'"
             rows={5}
           />
+
+          <label class="text-sm mb-1 font-bold">Category</label>
+          <select
+            value={category()}
+            onInput={(e) => setCategory(e.currentTarget.value)}
+            class="w-full rounded-lg border bg-ctp-mantle p-2 px-3 mb-4 text-md"
+          >
+            <option value="Tech">Tech</option>
+            <option value="Politics">Politics</option>
+            <option value="Sports">Sports</option>
+            <option value="Finance">Finance</option>
+            <option value="Other">Other</option>
+          </select>
 
           {error() && <p class="text-sm text-ctp-red mb-4">{error()}</p>}
 

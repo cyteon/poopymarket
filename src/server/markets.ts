@@ -6,7 +6,11 @@ import { ledger, markets, positions, trades, users } from "./db/schema";
 import { db } from "./db";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 
-export async function createMarket(question: string, rules: string) {
+export async function createMarket(
+  question: string,
+  rules: string,
+  category: string,
+) {
   if (!question.trim() || !rules.trim()) {
     throw new Error("Question and rules cannot be empty");
   }
@@ -38,6 +42,7 @@ export async function createMarket(question: string, rules: string) {
       rules,
       creatorId: user.id,
       b: 1000,
+      category: category as any,
     })
     .returning();
 
