@@ -146,6 +146,7 @@ export async function resolveMarket(id: number, resolution: "YES" | "NO") {
     for (const holder of holders) {
       const winningShares =
         resolution === "YES" ? holder.yesShares : holder.noShares;
+
       const payout = Math.floor(winningShares * 0.95);
       if (payout <= 0) continue;
 
