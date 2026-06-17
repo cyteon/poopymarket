@@ -3,42 +3,42 @@
 @import "@catppuccin/tailwindcss/mocha.css";
 
 body {
-    @apply bg-ctp-base text-ctp-text;
+  @apply bg-ctp-base text-ctp-text;
 }
 
 * {
-    font-family: "Geist", sans-serif;
-    transition: all 0.2s ease-in-out;
-    @apply border-ctp-surface1;
+  font-family: "Geist", sans-serif;
+  transition: all 0.2s ease-in-out;
+  @apply border-ctp-surface1;
 }
 
 button {
-    @apply bg-ctp-blue text-ctp-crust;
+  @apply bg-ctp-blue text-ctp-crust;
 }
 
 button:hover {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 button:disabled {
-    cursor: not-allowed;
+  cursor: not-allowed;
 }
 
 .ghost {
-    border: 1px solid transparent;
-    @apply bg-transparent text-ctp-text;
+  border: 1px solid transparent;
+  @apply bg-transparent text-ctp-text;
 }
 
 a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-    appearance: none;
-    margin: 0;
+  appearance: none;
+  margin: 0;
 }
 
 input[type="number"] {
-    appearance: textfield;
+  appearance: textfield;
 }
