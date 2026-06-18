@@ -1,5 +1,11 @@
 import { useLocation } from "@solidjs/router";
-import { LayoutDashboard, Receipt, ShoppingBasket, User } from "lucide-solid";
+import {
+  ChartArea,
+  LayoutDashboard,
+  Receipt,
+  ShoppingBasket,
+  User,
+} from "lucide-solid";
 import Navbar from "~/components/Navbar";
 import { requireAdmin } from "~/server/admin";
 
@@ -14,7 +20,7 @@ export default function AdminLayout(props: { children: Node }) {
     <div class="h-screen flex flex-col">
       <Navbar />
 
-      <div class="flex p-4 h-full flex-col lg:flex-row gap-4">
+      <div class="flex p-4 lg:h-full flex-col lg:flex-row gap-4">
         <div class="rounded-md border bg-ctp-surface0 h-full p-2 lg:w-48 text-sm gap-1 flex flex-col">
           <a
             href="/admin"
@@ -46,6 +52,14 @@ export default function AdminLayout(props: { children: Node }) {
           >
             <Receipt class="mr-2 my-auto" size={16} />
             Trades
+          </a>
+
+          <a
+            href="/admin/ledger"
+            class={`flex p-2 px-4 hover:no-underline! hover:bg-ctp-base rounded-lg ${location.pathname === "/admin/ledger" ? "border bg-ctp-base" : ""}`}
+          >
+            <ChartArea class="mr-2 my-auto" size={16} />
+            Ledger
           </a>
         </div>
 

@@ -8,7 +8,7 @@ export default function Admin() {
 
   return (
     <main class="flex w-full">
-      <div class="flex w-full h-fit gap-2">
+      <div class="flex w-full h-fit gap-4 flex-wrap lg:flex-nowrap">
         <div class="p-4 border rounded-md bg-ctp-surface0 w-full flex flex-col">
           <p class="text-sm text-ctp-subtext0">Total volume</p>
           <p class="text-2xl font-bold mx-auto inline-flex items-center gap-1">

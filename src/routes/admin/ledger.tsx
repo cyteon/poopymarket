@@ -2,17 +2,17 @@ import { createAsync } from "@solidjs/router";
 import { createSignal, For, Show } from "solid-js";
 import Credit from "~/components/Credit";
 import { format } from "~/lib/utils";
-import { getTrades } from "~/server/admin";
+import { getLedger } from "~/server/admin";
 
-export default function Trades() {
+export default function Ledger() {
   const [page, setPage] = createSignal(1);
-  const trades = createAsync(() => getTrades(page()));
+  const ledger = createAsync(() => getLedger(page()));
 
   return (
     <main class="flex flex-col w-full">
       <div class="flex items-center justify-between rounded-lg border bg-ctp-surface0 p-2 px-3 mb-2 w-fit text-sm">
         <span>
-          Page {page()} / {trades()?.pageCount}
+          Page {page()} / {ledger()?.pageCount}
         </span>
 
         <div class="flex items-center gap-2 ml-8">
@@ -26,7 +26,7 @@ export default function Trades() {
 
           <button
             class="px-2 py-0.5 rounded-lg ghost border-ctp-surface1! disabled:opacity-50 enabled:hover:border-ctp-surface2!"
-            disabled={trades()?.d.length === 0}
+            disabled={ledger()?.d.length === 0}
             onClick={() => setPage(page() + 1)}
           >
             Next
@@ -39,41 +39,32 @@ export default function Trades() {
           <thead>
             <tr class="text-left text-sm text-ctp-subtext0!">
               <th class="p-2 px-3">ID</th>
-              <th class="p-2 px-3">Market ID</th>
               <th class="p-2 px-3">User</th>
-              <th class="p-2 px-3">Outcome</th>
-              <th class="p-2 px-3">Price</th>
-              <th class="p-2 px-3">Shares</th>
+              <th class="p-2 px-3">Amount</th>
+              <th class="p-2 px-3">Description</th>
+              <th class="p-2 px-3">Created At</th>
             </tr>
           </thead>
 
           <tbody>
-            <For each={trades()?.d}>
-              {(trade) => (
+            <For each={ledger()?.d}>
+              {(entry) => (
                 <tr class="border-t">
-                  <td class="p-2 px-3">{trade.id}</td>
+                  <td class="p-2 px-3">{entry.id}</td>
 
-                  <td class="p-2 px-3">{trade.market}</td>
-
-                  <td class="p-2 px-3">{trade.user}</td>
+                  <td class="p-2 px-3">{entry.user}</td>
 
                   <td
-                    class={`p-2 px-3 ${trade.outcome === "YES" ? "text-ctp-green" : "text-ctp-red"}`}
-                  >
-                    {trade.outcome}
-                  </td>
-
-                  <td
-                    class={`p-2 px-3 inline-flex items-center justify-end gap-1 font-bold ${trade.price > 0 ? "text-ctp-green" : "text-ctp-red"}`}
+                    class={`p-2 px-3 inline-flex items-center justify-end gap-1 font-bold ${entry.amount > 0 ? "text-ctp-green" : "text-ctp-red"}`}
                   >
                     <Credit />
-                    {format(trade.price)}
+                    {format(entry.amount)}
                   </td>
 
-                  <td
-                    class={`p-2 px-3 ${trade.shares > 0 ? "text-ctp-green" : "text-ctp-red"}`}
-                  >
-                    {format(trade.shares)}
+                  <td class="p-2 px-3">{entry.description}</td>
+
+                  <td class="p-2 px-3">
+                    {new Date(entry.createdAt).toLocaleString()}
                   </td>
                 </tr>
               )}

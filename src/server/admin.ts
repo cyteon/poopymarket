@@ -7,6 +7,7 @@ import { query, redirect } from "@solidjs/router";
 
 export async function getOverview() {
   "use server";
+
   const token = getCookie("token");
 
   if (!token) {
@@ -37,6 +38,7 @@ export async function getOverview() {
 
 export async function getUsers() {
   "use server";
+
   const token = getCookie("token");
 
   if (!token) {
@@ -66,6 +68,7 @@ export async function getUsers() {
 
 export async function adjustBalance(userId: number, amount: number) {
   "use server";
+
   const token = getCookie("token");
 
   if (!token) {
@@ -92,6 +95,7 @@ export async function adjustBalance(userId: number, amount: number) {
 
 export async function toggleBanned(userId: number) {
   "use server";
+
   const token = getCookie("token");
 
   if (!token) {
@@ -121,6 +125,7 @@ export async function toggleBanned(userId: number) {
 
 export async function getMarkets() {
   "use server";
+
   const token = getCookie("token");
 
   if (!token) {
@@ -152,6 +157,7 @@ export async function getMarkets() {
 // this will be large so pagination needed
 export async function getTrades(page: number) {
   "use server";
+
   const token = getCookie("token");
 
   if (!token) {
@@ -183,6 +189,40 @@ export async function getTrades(page: number) {
   const pageCount = Math.ceil((await db.$count(trades)) / 100);
 
   return { d: tradesData, pageCount };
+}
+
+export async function getLedger(page: number) {
+  "use server";
+
+  const token = getCookie("token");
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await getUserFromToken(token);
+
+  if (!user || !user.admin) {
+    throw new Error("Unauthorized");
+  }
+
+  const ledgerData = await db
+    .select({
+      id: ledger.id,
+      user: users.username,
+      amount: ledger.amount,
+      description: ledger.description,
+      createdAt: ledger.createdAt,
+    })
+    .from(ledger)
+    .leftJoin(users, eq(users.id, ledger.userId))
+    .orderBy(desc(ledger.id))
+    .limit(100)
+    .offset((page - 1) * 100);
+
+  const pageCount = Math.ceil((await db.$count(ledger)) / 100);
+
+  return { d: ledgerData, pageCount };
 }
 
 export const requireAdmin = query(async () => {

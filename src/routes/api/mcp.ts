@@ -325,7 +325,7 @@ export async function POST({ request }: { request: Request }) {
         question: z.string().describe("Question for the market"),
         rules: z.string().describe("Rules for the market"),
         category: z
-          .enum(["Tech", "Politics", "Sports", "Finance", "Other"])
+          .enum(["Tech", "Politics", "Sports", "Finance", "Gaming", "Other"])
           .describe("Category for the market"),
       },
       annotations: {
