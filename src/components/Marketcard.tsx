@@ -17,7 +17,7 @@ export default function Marketcard({ market }: MarketCardProps) {
   };
 
   return (
-    <div class="border bg-ctp-surface0 flex flex-col rounded p-4 m-2">
+    <div class="border bg-ctp-surface0 flex flex-col rounded p-4">
       <a href={`/market/${market.id}`} class="font-bold mb-2">
         {market.question}
       </a>

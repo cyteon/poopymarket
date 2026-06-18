@@ -90,11 +90,17 @@ export async function getMarket(id: number) {
   return { ...market, points, topPositions };
 }
 
-export async function getMarkets() {
+export async function getMarkets(category: string = "*") {
+  let where = eq(markets.resolved, false);
+
+  if (category !== "*" && category.trim() !== "") {
+    where = and(where, eq(markets.category, category as any))!;
+  }
+
   return await db
     .select()
     .from(markets)
-    .where(eq(markets.resolved, false))
+    .where(where)
     .orderBy(desc(markets.volume));
 }
 

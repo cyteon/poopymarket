@@ -20,7 +20,7 @@ export async function getOverview() {
   }
 
   const [totalVolume] = await db
-    .select({ totalVolume: sum(trades.price).mapWith(Number) })
+    .select({ totalVolume: sum(sql`abs(${trades.price})`).mapWith(Number) })
     .from(trades);
 
   const tradeCount = await db.$count(trades);

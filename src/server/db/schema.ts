@@ -61,7 +61,7 @@ export const markets = pgTable("markets", {
     .notNull()
     .default(false), // admin option for locking market resolution to admin-only
   category: text("category", {
-    enum: ["Tech", "Politics", "Sports", "Finance", "Other"],
+    enum: ["Tech", "Politics", "Sports", "Finance", "Gaming", "Other"],
   })
     .notNull()
     .default("Other"),

@@ -91,6 +91,7 @@ export default function Create() {
             <option value="Politics">Politics</option>
             <option value="Sports">Sports</option>
             <option value="Finance">Finance</option>
+            <option value="Gaming">Gaming</option>
             <option value="Other">Other</option>
           </select>
 
