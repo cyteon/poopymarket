@@ -33,7 +33,7 @@ export default function User() {
           <div class="rounded-lg border bg-ctp-surface0 w-full">
             <p class="border-b p-2 px-4 font-bold">Open Positions</p>
 
-            <div class="flex flex-col gap-2 p-4 overflow-y-auto">
+            <div class="flex flex-col gap-2 p-4 overflow-y-auto max-h-96">
               <For each={user()?.positions.filter((p) => !p.resolved)}>
                 {(p) => {
                   const winningShares =
