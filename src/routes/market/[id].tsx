@@ -559,9 +559,9 @@ export default function Market() {
               </div>
             </Show>
 
-            <div class="p-4 rounded-md border bg-ctp-surface0">
-              <p class="text-sm font-bold mb-2">Market Rules</p>
-              <h1 class="mt-2">{market()?.rules}</h1>
+            <div class="p-4 rounded-md border bg-ctp-surface0 text-sm">
+              <p class="font-bold mb-2">Market Rules</p>
+              <p class="mt-2 whitespace-pre-wrap">{market()?.rules}</p>
             </div>
           </div>
 

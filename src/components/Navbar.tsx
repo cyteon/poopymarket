@@ -68,6 +68,12 @@ export default function Navbar() {
 
         <a href="/create">Create</a>
 
+        <Show when={user()}>
+          <p class="mx-2 text-ctp-surface2!">\</p>
+
+          <a href={`/user/${user()!.id}`}>Profile</a>
+        </Show>
+
         <Show when={user()?.admin}>
           <p class="mx-2 text-ctp-surface2!">\</p>
 
