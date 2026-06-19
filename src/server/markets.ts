@@ -51,6 +51,12 @@ export async function createMarket(
     .set({ balance: sql`${users.balance} - 500` })
     .where(eq(users.id, user.id));
 
+  await db.insert(ledger).values({
+    userId: user.id,
+    amount: -500,
+    description: `Created market "${question}"`,
+  });
+
   return { id: market.id };
 }
 
