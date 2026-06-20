@@ -44,7 +44,15 @@ export default function Login() {
           class="w-full rounded-lg border bg-ctp-mantle p-2 mb-4"
         />
 
-        <label class="text-sm mb-1">Password</label>
+        <label class="text-sm mb-1 flex">
+          Password
+          <a
+            class="ml-auto text-ctp-blue text-xs cursor-pointer"
+            href="/login/reset"
+          >
+            Reset password
+          </a>
+        </label>
         <input
           type="password"
           value={password()}

@@ -1,13 +1,24 @@
-import { and, eq, gt, or } from "drizzle-orm";
+import { and, desc, eq, gt, or } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { createHash, randomBytes } from "crypto";
 import { db } from "./db";
-import { ledger, sessions, users } from "./db/schema";
+import { ledger, passwordResets, sessions, users } from "./db/schema";
 import { getCookie, getHeader, getRequestIP, setCookie } from "vinxi/http";
 import { query, redirect } from "@solidjs/router";
 import { getRequestEvent } from "solid-js/web";
 import { isDisposableEmail } from "disposable-email-domains-js";
 import { resolveMx } from "dns/promises";
+import nodemailer from "nodemailer";
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT) || 587,
+  secure: process.env.SMTP_SECURE === "true",
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
+  },
+});
 
 export async function login(identifier: string, password: string) {
   "use server";
@@ -146,6 +157,96 @@ export async function getUserFromToken(token: string) {
     );
 
   return user || null;
+}
+
+export async function sendPasswordResetEmail(email: string) {
+  "use server";
+
+  const [user] = await db.select().from(users).where(eq(users.email, email));
+
+  if (!user) {
+    return;
+  }
+
+  const [latestExisting] = await db
+    .select()
+    .from(passwordResets)
+    .where(
+      and(
+        eq(passwordResets.userId, user.id),
+        gt(passwordResets.expiresAt, new Date().toISOString()),
+      ),
+    )
+    .orderBy(desc(passwordResets.createdAt));
+
+  if (
+    latestExisting &&
+    Date.now() - new Date(latestExisting.createdAt).getTime() < 5 * 60 * 1000
+  ) {
+    throw new Error("Try again in 5 minutes");
+  }
+
+  const token = randomBytes(32).toString("hex");
+  const sha256 = createHash("sha256").update(token).digest();
+
+  await db.insert(passwordResets).values({
+    userId: user.id,
+    token: sha256,
+    expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(), // 1 hour
+  });
+
+  const resetLink = `${process.env.BASE_URL}/login/reset?token=${token}`;
+  const body = `Hello ${user.username},\n\nYou requested a password reset. Click the link below to reset your password:\n\n${resetLink}\n\nIf you didn't request this, you can ignore this email, but never send anyone this link.`;
+
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      replyTo: process.env.SMTP_REPLYTO,
+      to: user.email,
+      subject: "Password Reset for Poopymarket",
+      text: body,
+    });
+
+    console.log(`Sent password reset email to ${user.email}`);
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+    throw new Error("Failed to send password reset email");
+  }
+}
+
+export async function resetPassword(token: string, newPassword: string) {
+  "use server";
+
+  if (newPassword.length < 8) {
+    throw new Error("Password must be at least 8 characters long");
+  }
+
+  const sha256 = createHash("sha256").update(token).digest();
+
+  const [reset] = await db
+    .select()
+    .from(passwordResets)
+    .where(
+      and(
+        eq(passwordResets.token, sha256),
+        gt(passwordResets.expiresAt, new Date().toISOString()),
+      ),
+    );
+
+  if (!reset) {
+    throw new Error("Invalid or expired token");
+  }
+
+  const hashed = await bcrypt.hash(newPassword, 12);
+
+  await db
+    .update(users)
+    .set({ passwordHash: hashed })
+    .where(eq(users.id, reset.userId));
+
+  await db
+    .delete(passwordResets)
+    .where(eq(passwordResets.userId, reset.userId));
 }
 
 export const getUser = query(async () => {

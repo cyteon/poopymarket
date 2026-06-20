@@ -33,6 +33,16 @@ export const users = pgTable("users", {
     .default(sql`to_timestamp(0)`),
 });
 
+export const passwordResets = pgTable("password_resets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  token: bytea("token").notNull().unique(),
+  expiresAt: text("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const sessions = pgTable("sessions", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")

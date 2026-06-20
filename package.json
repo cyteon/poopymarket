@@ -19,6 +19,7 @@
     "drizzle-orm": "^0.45.2",
     "lightweight-charts": "^5.2.0",
     "lucide-solid": "^1.18.0",
+    "nodemailer": "^9.0.1",
     "pg": "^8.21.0",
     "solid-js": "^1.9.5",
     "tailwindcss": "^4.3.0",
@@ -31,6 +32,7 @@
   "devDependencies": {
     "@catppuccin/tailwindcss": "^1.0.0",
     "@types/bcrypt": "^6.0.0",
+    "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "tsx": "^4.22.4"
