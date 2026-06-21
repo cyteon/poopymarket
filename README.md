@@ -1,5 +1,8 @@
 # Poopymarket
-A prediction market (no real money involved), using LMSR for calculating prices and chances.
+A prediction market (no real money involved), using LMSR for calculating prices and chances. \
+Users are given 1k credits on signup, and can claim 100 credits daily. Market creation costs 500 credits. \
+Poopymarket also features an admin dash, where admins can view users, markets, trades and ledger entries. \
+Admins can also add/remove credits from users.
 
 ## Running locally
 
