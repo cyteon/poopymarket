@@ -4,7 +4,7 @@ import { and, desc, eq, gt, or } from "drizzle-orm";
 import { db } from "./db";
 import { ledger, markets, positions, users } from "./db/schema";
 
-export async function getUser(id: number) {
+export async function getUser(username: string) {
   const [user] = await db
     .select({
       id: users.id,
@@ -13,7 +13,7 @@ export async function getUser(id: number) {
       banned: users.banned,
     })
     .from(users)
-    .where(eq(users.id, id));
+    .where(eq(users.username, username));
 
   if (!user) {
     return null;
@@ -33,7 +33,7 @@ export async function getUser(id: number) {
     .from(positions)
     .where(
       and(
-        eq(positions.userId, id),
+        eq(positions.userId, user.id),
         or(gt(positions.yesShares, 0), gt(positions.noShares, 0)),
       ),
     )
@@ -46,7 +46,7 @@ export async function getUser(id: number) {
       createdAt: ledger.createdAt,
     })
     .from(ledger)
-    .where(eq(ledger.userId, id))
+    .where(eq(ledger.userId, user.id))
     .orderBy(desc(ledger.createdAt))
     .limit(10);
 

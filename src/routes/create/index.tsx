@@ -1,3 +1,4 @@
+import { Title } from "@solidjs/meta";
 import { createAsync, useNavigate } from "@solidjs/router";
 import { createSignal } from "solid-js";
 import Credit from "~/components/Credit";
@@ -40,75 +41,79 @@ export default function Create() {
   }
 
   return (
-    <main class="flex flex-col min-h-screen items-center">
-      <Navbar />
+    <>
+      <Title>Create Market - PoopyMarket</Title>
 
-      <div class="max-w-md w-full my-auto px-2">
-        <h1 class="text-xl font-bold">Create Market</h1>
-        <p class="text-sm text-ctp-subtext0! mb-4 flex">
-          Create a new prediction market, costs
-          <span class="mx-1 my-auto">
-            <Credit />
-          </span>
-          500 credits
-        </p>
+      <main class="flex flex-col min-h-screen items-center">
+        <Navbar />
 
-        <div class="rounded-md border bg-ctp-surface0 p-4">
-          <label class="text-sm mb-1 font-bold">Question</label>
-          <p class="text-sm text-ctp-subtext0! mb-2">
-            Make it objective and time-based, so it can be clearly resolved
-          </p>
-
-          <input
-            type="text"
-            value={question()}
-            onInput={(e) => setQuestion(e.currentTarget.value)}
-            class="w-full rounded-lg border bg-ctp-mantle p-2 px-3 mb-4 text-md"
-            placeholder="Will GTA 6 release in 2026?"
-          />
-
-          <label class="text-sm mb-1 font-bold">Rules</label>
-          <p class="text-sm text-ctp-subtext0! mb-2">
-            Define how the market will be resolved, and any other relevant
-            information
-          </p>
-
-          <textarea
-            value={rules()}
-            onInput={(e) => setRules(e.currentTarget.value)}
-            class="w-full rounded-lg border bg-ctp-mantle p-2 px-3 mb-4 text-md resize-none"
-            placeholder="Resolves to 'Yes' if GTA 6 is released before January 1st, 2027. Otherwise resolves to 'No'"
-            rows={5}
-          />
-
-          <label class="text-sm mb-1 font-bold">Category</label>
-          <select
-            value={category()}
-            onInput={(e) => setCategory(e.currentTarget.value)}
-            class="w-full rounded-lg border bg-ctp-mantle p-2 px-3 mb-4 text-md"
-          >
-            <option value="Tech">Tech</option>
-            <option value="Politics">Politics</option>
-            <option value="Sports">Sports</option>
-            <option value="Finance">Finance</option>
-            <option value="Gaming">Gaming</option>
-            <option value="Other">Other</option>
-          </select>
-
-          {error() && <p class="text-sm text-ctp-red mb-4">{error()}</p>}
-
-          <button
-            class="ghost w-full rounded-lg p-2 flex justify-center border-ctp-surface1! enabled:hover:border-ctp-surface2!"
-            onClick={handleCreate}
-          >
-            Create Market (
+        <div class="max-w-md w-full my-auto px-2">
+          <h1 class="text-xl font-bold">Create Market</h1>
+          <p class="text-sm text-ctp-subtext0! mb-4 flex">
+            Create a new prediction market, costs
             <span class="mx-1 my-auto">
               <Credit />
             </span>
-            500 credits)
-          </button>
+            500 credits
+          </p>
+
+          <div class="rounded-md border bg-ctp-surface0 p-4">
+            <label class="text-sm mb-1 font-bold">Question</label>
+            <p class="text-sm text-ctp-subtext0! mb-2">
+              Make it objective and time-based, so it can be clearly resolved
+            </p>
+
+            <input
+              type="text"
+              value={question()}
+              onInput={(e) => setQuestion(e.currentTarget.value)}
+              class="w-full rounded-lg border bg-ctp-mantle p-2 px-3 mb-4 text-md"
+              placeholder="Will GTA 6 release in 2026?"
+            />
+
+            <label class="text-sm mb-1 font-bold">Rules</label>
+            <p class="text-sm text-ctp-subtext0! mb-2">
+              Define how the market will be resolved, and any other relevant
+              information
+            </p>
+
+            <textarea
+              value={rules()}
+              onInput={(e) => setRules(e.currentTarget.value)}
+              class="w-full rounded-lg border bg-ctp-mantle p-2 px-3 mb-4 text-md resize-none"
+              placeholder="Resolves to 'Yes' if GTA 6 is released before January 1st, 2027. Otherwise resolves to 'No'"
+              rows={5}
+            />
+
+            <label class="text-sm mb-1 font-bold">Category</label>
+            <select
+              value={category()}
+              onInput={(e) => setCategory(e.currentTarget.value)}
+              class="w-full rounded-lg border bg-ctp-mantle p-2 px-3 mb-4 text-md"
+            >
+              <option value="Tech">Tech</option>
+              <option value="Politics">Politics</option>
+              <option value="Sports">Sports</option>
+              <option value="Finance">Finance</option>
+              <option value="Gaming">Gaming</option>
+              <option value="Other">Other</option>
+            </select>
+
+            {error() && <p class="text-sm text-ctp-red mb-4">{error()}</p>}
+
+            <button
+              class="ghost w-full rounded-lg p-2 flex justify-center border-ctp-surface1! enabled:hover:border-ctp-surface2!"
+              onClick={handleCreate}
+            >
+              Create Market (
+              <span class="mx-1 my-auto">
+                <Credit />
+              </span>
+              500 credits)
+            </button>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
