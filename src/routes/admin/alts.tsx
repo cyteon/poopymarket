@@ -7,7 +7,7 @@ export default function Alts() {
   const suspectedAlts = createAsync(() => getSuspectedAlts());
 
   return (
-    <main class="flex w-full">
+    <main class="flex w-full h-full overflow-y-auto">
       <div class="w-full h-fit gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <For each={suspectedAlts()}>
           {(suspect) => (

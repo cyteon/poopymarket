@@ -264,7 +264,7 @@ export async function getSuspectedAlts() {
   }[] = [];
 
   for (const [ip, users] of byIp.entries()) {
-    if (users.length < 1) continue;
+    if (users.length < 2) continue;
 
     users.sort((a, b) => a.userId - b.userId);
 
