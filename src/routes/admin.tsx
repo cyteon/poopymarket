@@ -1,6 +1,7 @@
 import { Title } from "@solidjs/meta";
 import { useLocation } from "@solidjs/router";
 import {
+  Ban,
   ChartArea,
   LayoutDashboard,
   Receipt,
@@ -64,6 +65,14 @@ export default function AdminLayout(props: { children: Node }) {
             >
               <ChartArea class="mr-2 my-auto" size={16} />
               Ledger
+            </a>
+
+            <a
+              href="/admin/alts"
+              class={`flex p-2 px-4 hover:no-underline! hover:bg-ctp-base rounded-lg ${location.pathname === "/admin/alts" ? "border bg-ctp-base" : ""}`}
+            >
+              <Ban class="mr-2 my-auto" size={16} />
+              Alts
             </a>
           </div>
 

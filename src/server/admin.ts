@@ -1,6 +1,6 @@
-import { desc, eq, sql, sum } from "drizzle-orm";
+import { desc, eq, ne, sql, sum } from "drizzle-orm";
 import { db } from "./db";
-import { ledger, markets, trades, users } from "./db/schema";
+import { ledger, markets, sessions, trades, users } from "./db/schema";
 import { getCookie } from "vinxi/http";
 import { getUserFromToken } from "./auth";
 import { query, redirect } from "@solidjs/router";
@@ -223,6 +223,59 @@ export async function getLedger(page: number) {
   const pageCount = Math.ceil((await db.$count(ledger)) / 100);
 
   return { d: ledgerData, pageCount };
+}
+
+export async function getSuspectedAlts() {
+  const rows = await db
+    .selectDistinct({
+      ip: sessions.ip,
+      userId: sessions.userId,
+      username: users.username,
+      banned: users.banned,
+    })
+    .from(sessions)
+    .leftJoin(users, eq(users.id, sessions.userId))
+    .orderBy(sessions.ip)
+    .where(ne(sessions.ip, "unknown"));
+
+  const byIp = new Map<
+    string,
+    { userId: number; username: string; banned: boolean }[]
+  >();
+
+  for (const row of rows) {
+    const list = byIp.get(row.ip) ?? [];
+    list.push({
+      userId: row.userId,
+      username: row.username || "<none>",
+      banned: row.banned || false,
+    });
+    byIp.set(row.ip, list);
+  }
+
+  let result: {
+    suspected_owner: string;
+    ip: string;
+    users: {
+      userId: number;
+      username: string;
+      banned: boolean;
+    }[];
+  }[] = [];
+
+  for (const [ip, users] of byIp.entries()) {
+    if (users.length < 1) continue;
+
+    users.sort((a, b) => a.userId - b.userId);
+
+    result.push({
+      suspected_owner: users[0].username,
+      ip,
+      users,
+    });
+  }
+
+  return result;
 }
 
 export const requireAdmin = query(async () => {
