@@ -527,7 +527,9 @@ export default function Market() {
                         return (
                           <tr>
                             <td>
-                              <p>{pos.username}</p>
+                              <a href={`/user/${pos.username}`}>
+                                {pos.username}
+                              </a>
                             </td>
 
                             <td class="text-right">

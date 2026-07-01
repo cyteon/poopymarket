@@ -71,7 +71,7 @@ export default function Navbar() {
         <Show when={user()}>
           <p class="mx-2 text-ctp-surface2!">\</p>
 
-          <a href={`/user/${user()!.id}`}>Profile</a>
+          <a href={`/user/${user()!.username}`}>Profile</a>
         </Show>
 
         <Show when={user()?.admin}>

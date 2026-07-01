@@ -33,7 +33,9 @@ export default function Leaderboard() {
                     <tr class="border-t">
                       <td class="p-2 px-3">#{index() + 1}</td>
 
-                      <td class="p-2 px-3">{user.username}</td>
+                      <td class="p-2 px-3">
+                        <a href={`/user/${user.username}`}>{user.username}</a>
+                      </td>
 
                       <td class="p-2 px-3 inline-flex items-center justify-end gap-1">
                         <Credit />
