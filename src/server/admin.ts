@@ -226,6 +226,8 @@ export async function getLedger(page: number) {
 }
 
 export async function getSuspectedAlts() {
+  "use server";
+
   const rows = await db
     .selectDistinct({
       ip: sessions.ip,
