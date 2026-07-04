@@ -19,7 +19,7 @@ export default function Home() {
 
   return (
     <>
-      <Title>PoopyMarket</Title>
+      <Title>Kalshit</Title>
       <main class="flex flex-col min-h-screen">
         <Navbar />
 

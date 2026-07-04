@@ -54,7 +54,7 @@ export default function Navbar() {
         class="font-semibold hover:no-underline! hidden lg:block lg:col-start-1 lg:justify-self-start"
         href="/"
       >
-        Poopy<span class="text-ctp-blue">market</span>
+        Kal<span class="text-ctp-green">shit</span>
       </a>
 
       <div class="mr-auto lg:mr-0 lg:col-start-2 lg:justify-self-center flex items-center text-sm">

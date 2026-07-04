@@ -42,7 +42,7 @@ export default function Create() {
 
   return (
     <>
-      <Title>Create Market - PoopyMarket</Title>
+      <Title>Create Market - Kalshit</Title>
 
       <main class="flex flex-col min-h-screen items-center">
         <Navbar />

@@ -40,7 +40,7 @@ export default function Login() {
 
   return (
     <>
-      <Title>Reset Password - PoopyMarket</Title>
+      <Title>Reset Password - Kalshit</Title>
 
       <main class="flex flex-col items-center justify-center min-h-screen px-2">
         <span class="font-semibold mb-4">

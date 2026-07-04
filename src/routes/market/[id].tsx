@@ -154,7 +154,7 @@ export default function Market() {
 
   return (
     <>
-      <Title>{market()?.question} - PoopyMarket</Title>
+      <Title>{market()?.question} - Kalshit</Title>
 
       <main class="flex flex-col min-h-screen items-center">
         <Meta

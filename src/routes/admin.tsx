@@ -20,7 +20,7 @@ export default function AdminLayout(props: { children: Node }) {
 
   return (
     <>
-      <Title>Admin - Poopymarket</Title>
+      <Title>Admin - Kalshit</Title>
 
       <main class="h-screen flex flex-col">
         <Navbar />

@@ -29,7 +29,7 @@ export default function Login() {
 
   return (
     <>
-      <Title>Login - PoopyMarket</Title>
+      <Title>Login - Kalshit</Title>
 
       <main class="flex flex-col items-center justify-center min-h-screen px-2">
         <span class="font-semibold mb-4">

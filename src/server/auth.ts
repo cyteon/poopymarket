@@ -203,7 +203,7 @@ export async function sendPasswordResetEmail(email: string) {
       from: process.env.SMTP_FROM,
       replyTo: process.env.SMTP_REPLYTO,
       to: user.email,
-      subject: "Password Reset for Poopymarket",
+      subject: "Password Reset for Kalshit",
       text: body,
     });
 

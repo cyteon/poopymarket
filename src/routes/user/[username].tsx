@@ -19,7 +19,7 @@ export default function User() {
 
   return (
     <>
-      <Title>{user()?.username} - PoopyMarket</Title>
+      <Title>{user()?.username} - Kalshit</Title>
 
       <main class="flex flex-col min-h-screen items-center">
         <Navbar />

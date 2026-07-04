@@ -32,7 +32,7 @@ export async function POST({ request }: { request: Request }) {
     );
   }
 
-  const server = new McpServer({ name: "poopymarket", version: "1.0.0" });
+  const server = new McpServer({ name: "kalshit", version: "1.0.0" });
 
   server.registerTool(
     "get_user",

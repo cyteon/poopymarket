@@ -11,7 +11,7 @@ export default function Leaderboard() {
 
   return (
     <>
-      <Title>Leaderboard - PoopyMarket</Title>
+      <Title>Leaderboard - Kalshit</Title>
 
       <main class="flex flex-col min-h-screen items-center">
         <Navbar />

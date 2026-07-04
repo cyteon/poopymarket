@@ -1,14 +1,14 @@
-# Poopymarket
+# Kalshit
 A prediction market (no real money involved), using LMSR for calculating prices and chances. \
 Users are given 1k credits on signup, and can claim 100 credits daily. Market creation costs 500 credits. \
-Poopymarket also features an admin dash, where admins can view users, markets, trades and ledger entries. \
+Kalshit also features an admin dash, where admins can view users, markets, trades and ledger entries. \
 Admins can also add/remove credits from users.
 
 ## Running locally
 
 1. Clone the repository
 ```bash
-$ git clone https://github.com/cyteon/poopymarket && cd poopymarket
+$ git clone https://github.com/cyteon/kalshit && cd kalshit
 ```
 
 2. Install dependencies
