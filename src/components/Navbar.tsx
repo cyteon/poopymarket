@@ -1,11 +1,17 @@
 import { createAsync, revalidate } from "@solidjs/router";
-import { Show } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import { getUser } from "~/server/auth";
 import Credit from "./Credit";
-import { claimDailyCredits } from "~/server/user";
+import {
+  claimDailyCredits,
+  getNotifications,
+  markAllNotifsRead,
+} from "~/server/user";
+import { Bell } from "lucide-solid";
 
 export default function Navbar() {
   const user = createAsync(() => getUser());
+  const notifs = createAsync(async () => (user() ? getNotifications() : []));
 
   const canClaimCredits = () => {
     if (!user())
@@ -42,6 +48,17 @@ export default function Navbar() {
   async function claimDaily() {
     try {
       await claimDailyCredits();
+      revalidate();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "An error occurred");
+    }
+  }
+
+  const [notifsVisible, setNotifsVisible] = createSignal(false);
+
+  async function markAllRead() {
+    try {
+      await markAllNotifsRead();
       revalidate();
     } catch (err) {
       alert(err instanceof Error ? err.message : "An error occurred");
@@ -87,6 +104,47 @@ export default function Navbar() {
         when={!user()}
         fallback={
           <div class="lg:justify-self-end ml-auto mt-1 lg:mt-0 flex gap-3">
+            <div class="relative flex flex-col">
+              <button
+                class="bg-transparent! text-ctp-text! my-auto"
+                onClick={() => setNotifsVisible(!notifsVisible())}
+              >
+                <Bell size={16} />
+              </button>
+
+              <Show when={notifs()?.some((n) => !n.read)}>
+                <p class="absolute top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-ctp-red"></p>
+              </Show>
+
+              <Show when={notifsVisible()}>
+                <div class="absolute top-full right-0 p-2 gap-2 mt-4 w-72 bg-ctp-mantle border rounded-lg max-h-96 overflow-y-auto flex flex-col">
+                  <Show
+                    when={notifs()?.length}
+                    fallback={
+                      <p class="text-sm text-ctp-subtext0!">No notifications</p>
+                    }
+                  >
+                    <button
+                      class="text-xs text-ctp-blue! bg-transparent! ml-auto mr-1"
+                      onClick={markAllRead}
+                    >
+                      mark read
+                    </button>
+
+                    <For each={notifs()}>
+                      {(notif) => (
+                        <div
+                          class={`p-2 border rounded-md text-sm bg-ctp-crust ${notif.read ? "" : "border-ctp-blue/60!"}`}
+                        >
+                          {notif.message}
+                        </div>
+                      )}
+                    </For>
+                  </Show>
+                </div>
+              </Show>
+            </div>
+
             <span class="lg:col-start-3 px-2 py-0.5 border rounded-full text-sm font-semibold flex">
               <div class="mr-1 my-auto">
                 <Credit />

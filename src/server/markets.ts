@@ -2,7 +2,14 @@
 
 import { getCookie } from "vinxi/http";
 import { getUserFromToken } from "./auth";
-import { ledger, markets, positions, trades, users } from "./db/schema";
+import {
+  ledger,
+  markets,
+  notifications,
+  positions,
+  trades,
+  users,
+} from "./db/schema";
 import { db } from "./db";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 
@@ -176,6 +183,11 @@ export async function resolveMarket(id: number, resolution: "YES" | "NO") {
         userId: holder.userId,
         amount: payout,
         description: `Payout for market "${market.question}"`,
+      });
+
+      await tx.insert(notifications).values({
+        userId: holder.userId,
+        message: `You received a payout of ${payout} credits for market "${market.question}"`,
       });
     }
   });

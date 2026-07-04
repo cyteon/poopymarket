@@ -3,8 +3,8 @@
 import { getCookie } from "vinxi/http";
 import { getUserFromToken } from "./auth";
 import { db } from "./db";
-import { ledger, users } from "./db/schema";
-import { eq } from "drizzle-orm";
+import { ledger, notifications, users } from "./db/schema";
+import { desc, eq } from "drizzle-orm";
 
 export async function claimDailyCredits() {
   const token = getCookie("token");
@@ -51,4 +51,51 @@ export async function claimDailyCredits() {
       description: "Daily credits claim",
     });
   });
+}
+
+export async function getNotifications() {
+  const token = getCookie("token");
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await getUserFromToken(token);
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  if (user.banned) {
+    throw new Error("Your account has been banned");
+  }
+
+  return db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.userId, user.id))
+    .orderBy(desc(notifications.createdAt));
+}
+
+export async function markAllNotifsRead() {
+  const token = getCookie("token");
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await getUserFromToken(token);
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  if (user.banned) {
+    throw new Error("Your account has been banned");
+  }
+
+  await db
+    .update(notifications)
+    .set({ read: true })
+    .where(eq(notifications.userId, user.id));
 }
