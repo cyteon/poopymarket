@@ -33,7 +33,7 @@ export default function Login() {
 
       <main class="flex flex-col items-center justify-center min-h-screen px-2">
         <span class="font-semibold mb-4">
-          Poopy<span class="text-ctp-blue">market</span>
+          Kal<span class="text-ctp-green">shit</span>
         </span>
 
         <div class="rounded-md border bg-ctp-surface0 p-4 max-w-sm">
