@@ -48,14 +48,14 @@ export async function login(identifier: string, password: string) {
     token: sha256,
     ip: clientInfo.ip,
     userAgent: clientInfo.userAgent,
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
   });
 
   setCookie("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 60 * 60 * 24 * 7, // 1 week
+    maxAge: 60 * 60 * 24 * 30, // 1 month
   });
 }
 

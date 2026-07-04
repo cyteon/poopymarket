@@ -9,11 +9,11 @@ interface MarketCardProps {
 
 export default function Marketcard({ market }: MarketCardProps) {
   const yesChance = () => {
-    return (price(market.b, market.qYes, market.qNo) * 100).toFixed(0);
+    return price(market.b, market.qYes, market.qNo) * 100;
   };
 
   const noChance = () => {
-    return (100.0 - yesChance()).toFixed(0);
+    return 100.0 - yesChance();
   };
 
   return (
@@ -22,7 +22,9 @@ export default function Marketcard({ market }: MarketCardProps) {
         {market.question}
       </a>
 
-      <h1 class="text-3xl text-ctp-green! font-bold mt-auto">{yesChance()}%</h1>
+      <h1 class="text-3xl text-ctp-green! font-bold mt-auto">
+        {yesChance().toFixed(0)}%
+      </h1>
 
       <div class="flex mt-2">
         <p class="text-sm text-ctp-subtext0!">YES</p>
@@ -32,13 +34,13 @@ export default function Marketcard({ market }: MarketCardProps) {
       <div class="rounded-xl w-full flex overflow-hidden h-1 mt-1">
         <span
           style={{
-            width: `${yesChance()}%`,
+            width: `${yesChance().toFixed(0)}%`,
           }}
           class="bg-ctp-green"
         ></span>
         <span
           style={{
-            width: `${noChance()}%`,
+            width: `${noChance().toFixed(0)}%`,
           }}
           class="bg-ctp-red"
         ></span>

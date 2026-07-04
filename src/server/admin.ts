@@ -228,6 +228,18 @@ export async function getLedger(page: number) {
 export async function getSuspectedAlts() {
   "use server";
 
+  const token = getCookie("token");
+
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await getUserFromToken(token);
+
+  if (!user || !user.admin) {
+    throw new Error("Unauthorized");
+  }
+
   const rows = await db
     .selectDistinct({
       ip: sessions.ip,
